@@ -1,0 +1,26 @@
+{
+  "responsibles": {
+    "default": "Инна",
+    "sizing": "Евгения Попова",
+    "discount_0_25": "Егор",
+    "discount_25_50": "Егор",
+    "discount_50_plus": ["Егор", "Лёша Х"]
+  },
+  "priorities": {
+    "Срочно": 4,
+    "Срочные": 4,
+    "Средние": 3,
+    "Не срочно": 2,
+    "default": 1
+  },
+  "taskTitles": {
+    "NDA": "Согласование NDA — {company} — {priority}",
+    "Договор": "Согласование Договора — {company} — {priority}",
+    "Квота для КП": "Согласование квоты — {company} — {quotationType}"
+  },
+  "sections": {
+    "NDA": "NDA",
+    "Договор": "Договоры",
+    "Квота для КП": "Квоты"
+  }
+}
