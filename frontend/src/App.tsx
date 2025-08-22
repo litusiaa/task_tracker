@@ -1,4 +1,3 @@
-import React from 'react';
 import { QuotaForm } from './components/QuotaForm';
 
 function App() {

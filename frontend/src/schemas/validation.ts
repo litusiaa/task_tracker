@@ -10,14 +10,16 @@ export const baseFormSchema = z.object({
   }),
 });
 
-export const ndaFormSchema = baseFormSchema.extend({
+const ndaCore = baseFormSchema.extend({
   approvalType: z.literal('NDA'),
   companyDetails: z.string().min(1, 'Реквизиты компании обязательны для заполнения'),
   companyFile: z.instanceof(File).optional(),
   priority: z.enum(['Срочные', 'Средние'], {
     required_error: 'Выберите приоритет',
   }),
-}).refine(
+});
+
+export const ndaFormSchema = ndaCore.refine(
   (data) => data.companyDetails.trim().length > 0 || data.companyFile,
   {
     message: 'Необходимо заполнить реквизиты компании или загрузить файл',

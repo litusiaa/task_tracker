@@ -16,7 +16,6 @@ export const QuotaForm: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
-    register,
     handleSubmit,
     watch,
     setValue,
@@ -61,8 +60,8 @@ export const QuotaForm: React.FC = () => {
             onCompanyFileChange={(file) => setValue('companyFile', file)}
             onPriorityChange={(value) => setValue('priority', value as 'Срочные' | 'Средние')}
             errors={{
-              companyDetails: errors.companyDetails?.message,
-              priority: errors.priority?.message,
+              companyDetails: errors.companyDetails?.message as string | undefined,
+              priority: errors.priority?.message as string | undefined,
             }}
           />
         );
@@ -76,9 +75,9 @@ export const QuotaForm: React.FC = () => {
             onSizingChange={(value) => setValue('sizing', value as 'Да' | 'Нет')}
             onPriorityChange={(value) => setValue('priority', value as 'Срочно' | 'Средние' | 'Не срочно')}
             errors={{
-              quotaFileUrl: errors.quotaFileUrl?.message,
-              sizing: errors.sizing?.message,
-              priority: errors.priority?.message,
+              quotaFileUrl: errors.quotaFileUrl?.message as string | undefined,
+              sizing: errors.sizing?.message as string | undefined,
+              priority: errors.priority?.message as string | undefined,
             }}
           />
         );
@@ -96,11 +95,11 @@ export const QuotaForm: React.FC = () => {
             onSizingChange={(value) => setValue('sizing', value as 'Да' | 'Нет')}
             onApprovalDeadlineChange={(value) => setValue('approvalDeadline', value)}
             errors={{
-              quotaFileUrl: errors.quotaFileUrl?.message,
-              discount: errors.discount?.message,
-              quotationType: errors.quotationType?.message,
-              sizing: errors.sizing?.message,
-              approvalDeadline: errors.approvalDeadline?.message,
+              quotaFileUrl: errors.quotaFileUrl?.message as string | undefined,
+              discount: errors.discount?.message as string | undefined,
+              quotationType: errors.quotationType?.message as string | undefined,
+              sizing: errors.sizing?.message as string | undefined,
+              approvalDeadline: errors.approvalDeadline?.message as string | undefined,
             }}
           />
         );
