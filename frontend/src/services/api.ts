@@ -2,7 +2,7 @@ import axios from 'axios';
 import { FormData, ApiResponse } from '../types';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: (import.meta as any).env?.VITE_API_BASE || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
