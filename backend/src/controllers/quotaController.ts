@@ -1,22 +1,26 @@
 import { Request, Response } from 'express';
 import { todoistService } from '../services/todoist';
+import { linearService } from '../services/linear';
 import { FormData, ApiResponse } from '../types';
 
 export const submitQuotaRequest = async (req: Request, res: Response) => {
   try {
     const formData: FormData = req.body;
 
-    // Создаем задачу в Todoist
-    const todoistTask = await todoistService.createTask(formData);
+    // Выбор планера по ENV: LINEAR_API_KEY присутствует — создаем задачу в Linear, иначе Todoist
+    const useLinear = !!process.env.LINEAR_API_KEY && !!process.env.LINEAR_TEAM_ID;
+    const created = useLinear
+      ? await linearService.createTask(formData)
+      : await todoistService.createTask(formData);
 
     // Формируем ответ
     const response: ApiResponse = {
       success: true,
       data: {
-        id: todoistTask.id,
-        url: todoistTask.url,
-        title: todoistTask.content,
-        description: todoistTask.description,
+        id: created.id,
+        url: created.url,
+        title: created.title,
+        description: created.description,
       },
     };
 
