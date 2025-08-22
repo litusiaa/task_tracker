@@ -273,4 +273,5 @@ class TodoistService {
   }
 }
 
-export const todoistService = new TodoistService();
+// Todoist отключен. Оставляем файл на случай возврата, но не инициализируем сервис.
+export {}; 

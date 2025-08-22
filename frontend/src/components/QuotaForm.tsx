@@ -14,7 +14,7 @@ export const QuotaForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedTask, setSubmittedTask] = useState<TodoistTask | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const planner = ((import.meta as any).env?.VITE_PLANNER as string) || 'Todoist';
+  const planner = 'Linear';
 
   const {
     handleSubmit,
