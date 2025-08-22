@@ -32,7 +32,7 @@ export const QuotaForm: React.FC = () => {
     setSubmitError(null);
 
     try {
-      const response = await submitForm(data);
+      const response = await submitForm(data as any);
       
       if (response.success && response.data) {
         setSubmittedTask(response.data);
@@ -60,8 +60,8 @@ export const QuotaForm: React.FC = () => {
             onCompanyFileChange={(file) => setValue('companyFile', file)}
             onPriorityChange={(value) => setValue('priority', value as 'Срочные' | 'Средние')}
             errors={{
-              companyDetails: errors.companyDetails?.message as string | undefined,
-              priority: errors.priority?.message as string | undefined,
+              companyDetails: (errors as any).companyDetails?.message as string | undefined,
+              priority: (errors as any).priority?.message as string | undefined,
             }}
           />
         );
@@ -75,9 +75,9 @@ export const QuotaForm: React.FC = () => {
             onSizingChange={(value) => setValue('sizing', value as 'Да' | 'Нет')}
             onPriorityChange={(value) => setValue('priority', value as 'Срочно' | 'Средние' | 'Не срочно')}
             errors={{
-              quotaFileUrl: errors.quotaFileUrl?.message as string | undefined,
-              sizing: errors.sizing?.message as string | undefined,
-              priority: errors.priority?.message as string | undefined,
+              quotaFileUrl: (errors as any).quotaFileUrl?.message as string | undefined,
+              sizing: (errors as any).sizing?.message as string | undefined,
+              priority: (errors as any).priority?.message as string | undefined,
             }}
           />
         );
@@ -95,11 +95,11 @@ export const QuotaForm: React.FC = () => {
             onSizingChange={(value) => setValue('sizing', value as 'Да' | 'Нет')}
             onApprovalDeadlineChange={(value) => setValue('approvalDeadline', value)}
             errors={{
-              quotaFileUrl: errors.quotaFileUrl?.message as string | undefined,
-              discount: errors.discount?.message as string | undefined,
-              quotationType: errors.quotationType?.message as string | undefined,
-              sizing: errors.sizing?.message as string | undefined,
-              approvalDeadline: errors.approvalDeadline?.message as string | undefined,
+              quotaFileUrl: (errors as any).quotaFileUrl?.message as string | undefined,
+              discount: (errors as any).discount?.message as string | undefined,
+              quotationType: (errors as any).quotationType?.message as string | undefined,
+              sizing: (errors as any).sizing?.message as string | undefined,
+              approvalDeadline: (errors as any).approvalDeadline?.message as string | undefined,
             }}
           />
         );
