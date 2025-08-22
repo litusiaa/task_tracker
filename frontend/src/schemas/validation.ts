@@ -63,10 +63,24 @@ export const quotationFormSchema = baseFormSchema.extend({
   ),
 });
 
-export const formSchema = z.discriminatedUnion('approvalType', [
-  ndaFormSchema,
+const discriminated = z.discriminatedUnion('approvalType', [
+  ndaCore,
   contractFormSchema,
   quotationFormSchema,
 ]);
+
+export const formSchema = discriminated.superRefine((data, ctx) => {
+  if (data.approvalType === 'NDA') {
+    const details = (data as any).companyDetails as string | undefined;
+    const file = (data as any).companyFile as File | undefined;
+    if (!(details && details.trim().length > 0) && !file) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Необходимо заполнить реквизиты компании или загрузить файл',
+        path: ['companyDetails'],
+      });
+    }
+  }
+});
 
 export type FormSchema = z.infer<typeof formSchema>;

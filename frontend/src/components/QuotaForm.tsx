@@ -173,9 +173,9 @@ export const QuotaForm: React.FC = () => {
             onRequesterChange={(value) => setValue('requester', value as any)}
             onApprovalTypeChange={(value) => setValue('approvalType', value as any)}
             errors={{
-              companyName: errors.companyName?.message,
-              requester: errors.requester?.message,
-              approvalType: errors.approvalType?.message,
+              companyName: errors.companyName?.message as string | undefined,
+              requester: errors.requester?.message as string | undefined,
+              approvalType: errors.approvalType?.message as string | undefined,
             }}
           />
         </div>
