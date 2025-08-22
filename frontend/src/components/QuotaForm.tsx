@@ -14,6 +14,7 @@ export const QuotaForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedTask, setSubmittedTask] = useState<TodoistTask | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const planner = ((import.meta as any).env?.VITE_PLANNER as string) || 'Todoist';
 
   const {
     handleSubmit,
@@ -134,7 +135,7 @@ export const QuotaForm: React.FC = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
             >
-              Открыть в Todoist
+              {`Открыть в ${planner}`}
               <ExternalLink className="ml-1 h-4 w-4" />
             </a>
           </div>
@@ -207,7 +208,7 @@ export const QuotaForm: React.FC = () => {
             disabled={!isValid || isSubmitting}
             className={`btn-primary ${!isValid || isSubmitting ? 'btn-disabled' : ''}`}
           >
-            {isSubmitting ? 'Отправка...' : 'Отправить в Todoist'}
+            {isSubmitting ? 'Отправка...' : `Отправить в ${planner}`}
           </button>
         </div>
       </form>
