@@ -280,27 +280,31 @@ class LinearService {
     const chain = this.computeAssigneeChain(formData);
     const initialAssignee = chain[0] || this.assigneeId;
 
-    const parent = await this.createIssue({
+    // Build input conditionally to avoid sending empty strings to Linear (causes UUID errors)
+    const parentInput: any = {
       teamId: this.teamId!,
       title,
       description,
       priority,
       assigneeId: initialAssignee,
-      projectId: this.projectId,
-      stateId: this.workflowStateId,
-    });
+    };
+    if (this.projectId) parentInput.projectId = this.projectId;
+    if (this.workflowStateId) parentInput.stateId = this.workflowStateId;
+
+    const parent = await this.createIssue(parentInput);
 
     // add checklist items as sub-issues (contextual todo list)
     const checklist = this.getChecklistItems(formData);
     for (const content of checklist) {
-      await this.createIssue({
+      const subInput: any = {
         teamId: this.teamId!,
         title: content,
         parentId: parent.id,
         assigneeId: initialAssignee,
-        projectId: this.projectId,
-        stateId: this.workflowStateId,
-      });
+      };
+      if (this.projectId) subInput.projectId = this.projectId;
+      if (this.workflowStateId) subInput.stateId = this.workflowStateId;
+      await this.createIssue(subInput);
     }
 
     // Parallel approvers for discount > 50% (Егор и Лёша одновременно)
@@ -311,14 +315,15 @@ class LinearService {
 
       const createParallel = async (title: string, assignee: string | undefined) => {
         if (!assignee) return;
-        await this.createIssue({
+        const subInput: any = {
           teamId: this.teamId!,
           title,
           parentId: parent.id,
           assigneeId: assignee,
-          projectId: this.projectId,
-          stateId: this.workflowStateId,
-        });
+        };
+        if (this.projectId) subInput.projectId = this.projectId;
+        if (this.workflowStateId) subInput.stateId = this.workflowStateId;
+        await this.createIssue(subInput);
       };
 
       if (discount === 'Больше 50%') {
