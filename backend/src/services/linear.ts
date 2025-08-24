@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { FormData, TodoistTask } from '../types';
-import rulesConfig from '../config/rules.config.json';
+// Import JSON config in TS for Node on Vercel
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const rulesConfig = require('../config/rules.config.json');
 
 interface LinearIssueCreateResponse {
   data?: {
@@ -18,19 +20,21 @@ interface LinearViewerResponse {
 
 class LinearService {
   private apiKey: string;
-  private teamId: string;
+  private teamId?: string;
+  private teamKey?: string;
   private baseUrl = 'https://api.linear.app/graphql';
   private assigneeId?: string;
 
   constructor() {
     this.apiKey = process.env.LINEAR_API_KEY || '';
     this.teamId = process.env.LINEAR_TEAM_ID || '';
+    this.teamKey = process.env.LINEAR_TEAM_KEY || '';
 
     if (!this.apiKey) {
       throw new Error('LINEAR_API_KEY is required');
     }
-    if (!this.teamId) {
-      throw new Error('LINEAR_TEAM_ID is required');
+    if (!this.teamId && !this.teamKey) {
+      throw new Error('Provide LINEAR_TEAM_ID or LINEAR_TEAM_KEY');
     }
   }
 
@@ -48,6 +52,17 @@ class LinearService {
     const id = resp.data.data?.viewer?.id;
     if (!id) throw new Error('Failed to resolve Linear viewer id');
     this.assigneeId = id;
+  }
+
+  private async ensureTeam() {
+    if (this.teamId) return;
+    const key = this.teamKey;
+    if (!key) throw new Error('LINEAR_TEAM_KEY is missing');
+    const query = `query TeamByKey($key: String!) { team(key: $key) { id key name } }`;
+    const resp = await axios.post(this.baseUrl, { query, variables: { key } }, { headers: this.getHeaders() });
+    const id = (resp.data as any)?.data?.team?.id as string | undefined;
+    if (!id) throw new Error('Failed to resolve Linear team id by key');
+    this.teamId = id;
   }
 
   private getPriority(formData: FormData): number {
@@ -168,12 +183,13 @@ class LinearService {
 
   async createTask(formData: FormData): Promise<TodoistTask> { // reuse common shape
     await this.ensureAssignee();
+    await this.ensureTeam();
     const title = this.getTaskTitle(formData);
     const description = this.getTaskDescription(formData);
     const priority = this.getPriority(formData);
 
     const parent = await this.createIssue({
-      teamId: this.teamId,
+      teamId: this.teamId!,
       title,
       description,
       priority,
@@ -184,7 +200,7 @@ class LinearService {
     const checklist = this.getChecklistItems(formData);
     for (const content of checklist) {
       await this.createIssue({
-        teamId: this.teamId,
+        teamId: this.teamId!,
         title: content,
         parentId: parent.id,
         assigneeId: this.assigneeId,
