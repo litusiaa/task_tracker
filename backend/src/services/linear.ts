@@ -207,6 +207,75 @@ class LinearService {
     return items;
   }
 
+  private getUserIds() {
+    return {
+      inna: process.env.LINEAR_USER_INNA_ID || '',
+      egor: process.env.LINEAR_USER_EGOR_ID || '',
+      alexH: process.env.LINEAR_USER_ALEXH_ID || '',
+      zhenya: process.env.LINEAR_USER_ZHENYA_ID || '',
+    };
+  }
+
+  private computeAssigneeChain(formData: FormData): string[] {
+    const users = this.getUserIds();
+    const chain: string[] = [];
+
+    if (formData.approvalType === 'NDA') {
+      if (users.inna) chain.push(users.inna);
+      return chain;
+    }
+
+    if (formData.approvalType === 'Договор') {
+      // Сайзинг сначала на Женю, затем Инна
+      if (formData.sizing === 'Да') {
+        if (users.zhenya) chain.push(users.zhenya);
+        if (users.inna) chain.push(users.inna);
+      } else {
+        if (users.inna) chain.push(users.inna);
+      }
+      return chain;
+    }
+
+    if (formData.approvalType === 'Квота для КП') {
+      const discount = (formData as any).discount as string;
+      const sizing = (formData as any).sizing as string;
+      const pushIf = (id?: string) => { if (id) chain.push(id); };
+
+      if (sizing === 'Да') {
+        // Примеры из ТЗ: сначала согласующие по скидке, потом Женя, затем Инна
+        if (discount === '0%') {
+          // Только Инна, но с сайзингом сначала Женя
+          pushIf(users.zhenya);
+          pushIf(users.inna);
+        } else if (discount === '0–25%' || discount === '25–50%') {
+          pushIf(users.egor);
+          pushIf(users.zhenya);
+          pushIf(users.inna);
+        } else {
+          pushIf(users.egor);
+          pushIf(users.alexH);
+          pushIf(users.zhenya);
+          pushIf(users.inna);
+        }
+      } else {
+        // Без сайзинга: сразу согласующие по скидке → Инна
+        if (discount === '0%') {
+          pushIf(users.inna);
+        } else if (discount === '0–25%' || discount === '25–50%') {
+          pushIf(users.egor);
+          pushIf(users.inna);
+        } else {
+          pushIf(users.egor);
+          pushIf(users.alexH);
+          pushIf(users.inna);
+        }
+      }
+      return chain.filter(Boolean);
+    }
+
+    return chain;
+  }
+
   private async createIssue(input: any): Promise<{ id: string; url: string; title: string; description?: string }> {
     const mutation = `mutation IssueCreate($input: IssueCreateInput!) {
       issueCreate(input: $input) {
@@ -229,27 +298,46 @@ class LinearService {
     await this.ensureProject();
     await this.ensureWorkflowState();
 
+    const chain = this.computeAssigneeChain(formData);
+    const initialAssignee = chain[0] || this.assigneeId;
+
     const parent = await this.createIssue({
       teamId: this.teamId!,
       title,
       description,
       priority,
-      assigneeId: this.assigneeId,
+      assigneeId: initialAssignee,
       projectId: this.projectId,
       stateId: this.workflowStateId,
     });
 
-    // add checklist items as sub-issues
+    // add checklist items as sub-issues (contextual todo list)
     const checklist = this.getChecklistItems(formData);
     for (const content of checklist) {
       await this.createIssue({
         teamId: this.teamId!,
         title: content,
         parentId: parent.id,
-        assigneeId: this.assigneeId,
+        assigneeId: initialAssignee,
         projectId: this.projectId,
         stateId: this.workflowStateId,
       });
+    }
+
+    // Add routing sub-issues to represent sequential approvals (optional but visible in UI)
+    if (chain.length > 0) {
+      for (let i = 0; i < chain.length; i++) {
+        const userId = chain[i];
+        const titleStep = `Шаг ${i + 1}: согласование (${i === 0 ? 'начальный исполнитель' : 'следующий'})`;
+        await this.createIssue({
+          teamId: this.teamId!,
+          title: titleStep,
+          parentId: parent.id,
+          assigneeId: userId,
+          projectId: this.projectId,
+          stateId: this.workflowStateId,
+        });
+      }
     }
 
     return { id: parent.id, url: parent.url, title: parent.title, description: parent.description || '' };
