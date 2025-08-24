@@ -226,7 +226,7 @@ class LinearService {
     }
 
     if (formData.approvalType === 'Договор') {
-      // Сайзинг сначала на Женю, затем Инна
+      // Главная задача: без сайзинга — Инна; с сайзингом — Женя → Инна (как последовательные шаги)
       if (formData.sizing === 'Да') {
         if (users.zhenya) chain.push(users.zhenya);
         if (users.inna) chain.push(users.inna);
@@ -242,33 +242,12 @@ class LinearService {
       const pushIf = (id?: string) => { if (id) chain.push(id); };
 
       if (sizing === 'Да') {
-        // Примеры из ТЗ: сначала согласующие по скидке, потом Женя, затем Инна
-        if (discount === '0%') {
-          // Только Инна, но с сайзингом сначала Женя
-          pushIf(users.zhenya);
-          pushIf(users.inna);
-        } else if (discount === '0–25%' || discount === '25–50%') {
-          pushIf(users.egor);
-          pushIf(users.zhenya);
-          pushIf(users.inna);
-        } else {
-          pushIf(users.egor);
-          pushIf(users.alexH);
-          pushIf(users.zhenya);
-          pushIf(users.inna);
-        }
+        // Сайзинг сначала Женя → затем финал Инна; согласующие пойдут параллельными подзадачами (см. ниже)
+        pushIf(users.zhenya);
+        pushIf(users.inna);
       } else {
-        // Без сайзинга: сразу согласующие по скидке → Инна
-        if (discount === '0%') {
-          pushIf(users.inna);
-        } else if (discount === '0–25%' || discount === '25–50%') {
-          pushIf(users.egor);
-          pushIf(users.inna);
-        } else {
-          pushIf(users.egor);
-          pushIf(users.alexH);
-          pushIf(users.inna);
-        }
+        // Без сайзинга: основная на Инну, согласующие параллельно как подзадачи
+        pushIf(users.inna);
       }
       return chain.filter(Boolean);
     }
@@ -324,19 +303,33 @@ class LinearService {
       });
     }
 
-    // Add routing sub-issues to represent sequential approvals (optional but visible in UI)
-    if (chain.length > 0) {
-      for (let i = 0; i < chain.length; i++) {
-        const userId = chain[i];
-        const titleStep = `Шаг ${i + 1}: согласование (${i === 0 ? 'начальный исполнитель' : 'следующий'})`;
+    // Parallel approvers for discount > 50% (Егор и Лёша одновременно)
+    if (formData.approvalType === 'Квота для КП') {
+      const users = this.getUserIds();
+      const discount = (formData as any).discount as string;
+      const sizing = (formData as any).sizing as string;
+
+      const createParallel = async (title: string, assignee: string | undefined) => {
+        if (!assignee) return;
         await this.createIssue({
           teamId: this.teamId!,
-          title: titleStep,
+          title,
           parentId: parent.id,
-          assigneeId: userId,
+          assigneeId: assignee,
           projectId: this.projectId,
           stateId: this.workflowStateId,
         });
+      };
+
+      if (discount === 'Больше 50%') {
+        // Если сайзинг да — Женя уже стоит как первый исполнитель основной задачи; параллельные согласующие идут подзадачами
+        await createParallel('Параллельное согласование: Егор', users.egor);
+        await createParallel('Параллельное согласование: Лёша Х', users.alexH);
+      }
+
+      if ((discount === '0–25%' || discount === '25–50%') && sizing !== 'Да') {
+        // Для 0–50 без сайзинга: параллельным делаем только Егора, финал — Инна по основной цепочке
+        await createParallel('Параллельное согласование: Егор', users.egor);
       }
     }
 
