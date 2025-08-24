@@ -26,6 +26,14 @@ export const QuotaForm: React.FC = () => {
     mode: 'onChange',
   });
 
+  // Ensure RHF validates and updates isValid when we change values programmatically
+  const setField = (name: keyof FormSchema | any, value: any) =>
+    setValue(name as any, value, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+
   const approvalType = watch('approvalType');
 
   const onSubmit = async (data: FormSchema) => {
@@ -57,9 +65,9 @@ export const QuotaForm: React.FC = () => {
             companyDetails={watch('companyDetails') || ''}
             companyFile={watch('companyFile')}
             priority={watch('priority') || ''}
-            onCompanyDetailsChange={(value) => setValue('companyDetails', value)}
-            onCompanyFileChange={(file) => setValue('companyFile', file)}
-            onPriorityChange={(value) => setValue('priority', value as 'Срочные' | 'Средние')}
+            onCompanyDetailsChange={(value) => setField('companyDetails', value)}
+            onCompanyFileChange={(file) => setField('companyFile', file)}
+            onPriorityChange={(value) => setField('priority', value as 'Срочные' | 'Средние')}
             errors={{
               companyDetails: (errors as any).companyDetails?.message as string | undefined,
               priority: (errors as any).priority?.message as string | undefined,
@@ -72,9 +80,9 @@ export const QuotaForm: React.FC = () => {
             quotaFileUrl={watch('quotaFileUrl') || ''}
             sizing={watch('sizing') || ''}
             priority={watch('priority') || ''}
-            onQuotaFileUrlChange={(value) => setValue('quotaFileUrl', value)}
-            onSizingChange={(value) => setValue('sizing', value as 'Да' | 'Нет')}
-            onPriorityChange={(value) => setValue('priority', value as 'Срочно' | 'Средние' | 'Не срочно')}
+            onQuotaFileUrlChange={(value) => setField('quotaFileUrl', value)}
+            onSizingChange={(value) => setField('sizing', value as 'Да' | 'Нет')}
+            onPriorityChange={(value) => setField('priority', value as 'Срочно' | 'Средние' | 'Не срочно')}
             errors={{
               quotaFileUrl: (errors as any).quotaFileUrl?.message as string | undefined,
               sizing: (errors as any).sizing?.message as string | undefined,
@@ -90,11 +98,11 @@ export const QuotaForm: React.FC = () => {
             quotationType={watch('quotationType') || ''}
             sizing={watch('sizing') || ''}
             approvalDeadline={watch('approvalDeadline') || ''}
-            onQuotaFileUrlChange={(value) => setValue('quotaFileUrl', value)}
-            onDiscountChange={(value) => setValue('discount', value as '0%' | '0–25%' | '25–50%' | 'Больше 50%')}
-            onQuotationTypeChange={(value) => setValue('quotationType', value as 'КП' | 'Договор')}
-            onSizingChange={(value) => setValue('sizing', value as 'Да' | 'Нет')}
-            onApprovalDeadlineChange={(value) => setValue('approvalDeadline', value)}
+            onQuotaFileUrlChange={(value) => setField('quotaFileUrl', value)}
+            onDiscountChange={(value) => setField('discount', value as '0%' | '0–25%' | '25–50%' | 'Больше 50%')}
+            onQuotationTypeChange={(value) => setField('quotationType', value as 'КП' | 'Договор')}
+            onSizingChange={(value) => setField('sizing', value as 'Да' | 'Нет')}
+            onApprovalDeadlineChange={(value) => setField('approvalDeadline', value)}
             errors={{
               quotaFileUrl: (errors as any).quotaFileUrl?.message as string | undefined,
               discount: (errors as any).discount?.message as string | undefined,
@@ -170,9 +178,9 @@ export const QuotaForm: React.FC = () => {
             companyName={watch('companyName') || ''}
             requester={watch('requester') || ''}
             approvalType={watch('approvalType') || ''}
-            onCompanyNameChange={(value) => setValue('companyName', value)}
-            onRequesterChange={(value) => setValue('requester', value as any)}
-            onApprovalTypeChange={(value) => setValue('approvalType', value as any)}
+            onCompanyNameChange={(value) => setField('companyName', value)}
+            onRequesterChange={(value) => setField('requester', value as any)}
+            onApprovalTypeChange={(value) => setField('approvalType', value as any)}
             errors={{
               companyName: errors.companyName?.message as string | undefined,
               requester: errors.requester?.message as string | undefined,
