@@ -24,17 +24,30 @@ class LinearService {
   private teamKey?: string;
   private baseUrl = 'https://api.linear.app/graphql';
   private assigneeId?: string;
+  private projectId?: string;
+  private projectName?: string;
+  private workflowStateId?: string;
+  private workflowStateName?: string;
 
   constructor() {
     this.apiKey = process.env.LINEAR_API_KEY || '';
     this.teamId = process.env.LINEAR_TEAM_ID || '';
     this.teamKey = process.env.LINEAR_TEAM_KEY || '';
+    this.projectId = process.env.LINEAR_PROJECT_ID || '';
+    this.projectName = process.env.LINEAR_PROJECT_NAME || '';
+    this.workflowStateName = process.env.LINEAR_WORKFLOW_STATE_NAME || '';
+    const explicitAssignee = process.env.LINEAR_ASSIGNEE_ID || '';
 
     if (!this.apiKey) {
       throw new Error('LINEAR_API_KEY is required');
     }
     if (!this.teamId && !this.teamKey) {
       throw new Error('Provide LINEAR_TEAM_ID or LINEAR_TEAM_KEY');
+    }
+
+    // Optional override for assignee
+    if (explicitAssignee) {
+      this.assigneeId = explicitAssignee;
     }
   }
 
@@ -63,6 +76,32 @@ class LinearService {
     const id = (resp.data as any)?.data?.team?.id as string | undefined;
     if (!id) throw new Error('Failed to resolve Linear team id by key');
     this.teamId = id;
+  }
+
+  private async ensureProject() {
+    if (this.projectId) return;
+    if (!this.projectName) return; // optional
+    const query = `query ProjectByName($name: String!) {
+      projects(filter: { name: { eq: $name } }, first: 1) {
+        nodes { id name }
+      }
+    }`;
+    const resp = await axios.post(this.baseUrl, { query, variables: { name: this.projectName } }, { headers: this.getHeaders() });
+    const id = (resp.data as any)?.data?.projects?.nodes?.[0]?.id as string | undefined;
+    if (id) this.projectId = id;
+  }
+
+  private async ensureWorkflowState() {
+    if (this.workflowStateId) return;
+    if (!this.workflowStateName) return; // optional
+    await this.ensureTeam();
+    const query = `query States($teamId: String!) {
+      workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id name } }
+    }`;
+    const resp = await axios.post(this.baseUrl, { query, variables: { teamId: this.teamId } }, { headers: this.getHeaders() });
+    const nodes = (resp.data as any)?.data?.workflowStates?.nodes as Array<{ id: string; name: string }> | undefined;
+    const found = nodes?.find(s => s.name.toLowerCase() === (this.workflowStateName as string).toLowerCase());
+    if (found) this.workflowStateId = found.id;
   }
 
   private getPriority(formData: FormData): number {
@@ -187,6 +226,8 @@ class LinearService {
     const title = this.getTaskTitle(formData);
     const description = this.getTaskDescription(formData);
     const priority = this.getPriority(formData);
+    await this.ensureProject();
+    await this.ensureWorkflowState();
 
     const parent = await this.createIssue({
       teamId: this.teamId!,
@@ -194,6 +235,8 @@ class LinearService {
       description,
       priority,
       assigneeId: this.assigneeId,
+      projectId: this.projectId,
+      stateId: this.workflowStateId,
     });
 
     // add checklist items as sub-issues
@@ -204,6 +247,8 @@ class LinearService {
         title: content,
         parentId: parent.id,
         assigneeId: this.assigneeId,
+        projectId: this.projectId,
+        stateId: this.workflowStateId,
       });
     }
 
