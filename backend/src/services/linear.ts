@@ -291,10 +291,23 @@ class LinearService {
         issue { id identifier url title description }
       }
     }`;
-    const resp = await axios.post<LinearIssueCreateResponse>(this.baseUrl, { query: mutation, variables: { input } }, { headers: this.getHeaders() });
-    const issue = resp.data.data?.issueCreate?.issue;
-    if (!issue) throw new Error(`Linear API error: ${JSON.stringify(resp.data.errors || {})}`);
-    return { id: issue.id, url: issue.url, title: issue.title, description: issue.description };
+    try {
+      const resp = await axios.post<LinearIssueCreateResponse>(
+        this.baseUrl,
+        { query: mutation, variables: { input } },
+        { headers: this.getHeaders() }
+      );
+      const issue = resp.data.data?.issueCreate?.issue;
+      if (!issue) throw new Error(`Linear API error: ${JSON.stringify(resp.data.errors || {})}`);
+      return { id: issue.id, url: issue.url, title: issue.title, description: issue.description };
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const details = (error.response?.data as any)?.errors || error.response?.data;
+        throw new Error(`Linear API HTTP ${status}: ${JSON.stringify(details)}`);
+      }
+      throw error;
+    }
   }
 
   async createTask(formData: FormData): Promise<TodoistTask> { // reuse common shape
