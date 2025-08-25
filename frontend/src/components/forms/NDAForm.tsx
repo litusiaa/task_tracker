@@ -36,6 +36,7 @@ export const NDAForm: React.FC<NDAFormProps> = ({
       <FormField
         label="Реквизиты компании"
         error={errors.companyDetails}
+        required
       >
         <div className="space-y-3">
           <Textarea
