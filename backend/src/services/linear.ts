@@ -106,7 +106,7 @@ class LinearService {
   }
 
   // Linear priority mapping (API expects 0..4 where 1=Urgent, 2=High, 3=Medium, 4=Low)
-  // Urgent (1) только для: NDA(Срочные) и Договор(Срочно)
+  // Urgent (1) только для: NDA(Срочно) и Договор(Срочно)
   private getLinearPriority(formData: FormData): number {
     const p = (formData as any).priority as string | undefined;
     if ((formData.approvalType === 'NDA' && p === 'Срочно') || (formData.approvalType === 'Договор' && p === 'Срочно')) {
@@ -130,10 +130,10 @@ class LinearService {
     }
     const p = (formData as any).priority as string | undefined;
     const now = new Date();
-    if (p === 'Срочно' || p === 'Срочные') {
+    if (p === 'Срочно') {
       return toDateStr(now);
     }
-    if (p === 'Средние') {
+    if (p === 'Средний') {
       const d = new Date(now);
       d.setDate(d.getDate() + 1);
       return toDateStr(d);
@@ -150,8 +150,8 @@ class LinearService {
     const toReadablePriority = (): string => {
       const p = (formData as any).priority as string | undefined;
       if (!p) return '';
-      if (p === 'Срочно' || p === 'Срочные') return 'срочно';
-      if (p === 'Средние') return 'средне';
+      if (p === 'Срочно') return 'срочно';
+      if (p === 'Средний') return 'средне';
       if (p === 'Не срочно') return 'не срочно';
       return '';
     };

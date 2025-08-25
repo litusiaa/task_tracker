@@ -67,7 +67,7 @@ export const QuotaForm: React.FC = () => {
             priority={watch('priority') || ''}
             onCompanyDetailsChange={(value) => setField('companyDetails', value)}
             onCompanyFileChange={(file) => setField('companyFile', file)}
-            onPriorityChange={(value) => setField('priority', value as 'Срочные' | 'Средние')}
+            onPriorityChange={(value) => setField('priority', value as 'Срочно' | 'Средний')}
             errors={{
               companyDetails: (errors as any).companyDetails?.message as string | undefined,
               priority: (errors as any).priority?.message as string | undefined,
@@ -82,7 +82,7 @@ export const QuotaForm: React.FC = () => {
             priority={watch('priority') || ''}
             onQuotaFileUrlChange={(value) => setField('quotaFileUrl', value)}
             onSizingChange={(value) => setField('sizing', value as 'Да' | 'Нет')}
-            onPriorityChange={(value) => setField('priority', value as 'Срочно' | 'Средние' | 'Не срочно')}
+            onPriorityChange={(value) => setField('priority', value as 'Срочно' | 'Средний' | 'Не срочно')}
             errors={{
               quotaFileUrl: (errors as any).quotaFileUrl?.message as string | undefined,
               sizing: (errors as any).sizing?.message as string | undefined,
@@ -126,7 +126,7 @@ export const QuotaForm: React.FC = () => {
             Задача успешно создана!
           </h2>
           <p className="text-gray-600 mb-6">
-            Задача отправлена в Todoist и ожидает обработки.
+            Задача отправлена в Linear и ожидает обработки.
           </p>
           
           <div className="bg-gray-50 rounded-lg p-4 mb-6">

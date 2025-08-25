@@ -13,7 +13,7 @@ export const baseFormSchema = z.object({
 export const ndaFormSchema = baseFormSchema.extend({
   approvalType: z.literal('NDA'),
   companyDetails: z.string().min(1, 'Реквизиты компании обязательны для заполнения'),
-  priority: z.enum(['Срочные', 'Средние'], {
+  priority: z.enum(['Срочно', 'Средний'], {
     required_error: 'Выберите приоритет',
   }),
 });
@@ -24,7 +24,7 @@ export const contractFormSchema = baseFormSchema.extend({
   sizing: z.enum(['Да', 'Нет'], {
     required_error: 'Выберите, требуется ли сайзинг',
   }),
-  priority: z.enum(['Срочно', 'Средние', 'Не срочно'], {
+  priority: z.enum(['Срочно', 'Средний', 'Не срочно'], {
     required_error: 'Выберите приоритет',
   }),
 });

@@ -2,7 +2,7 @@ export type Requester = 'Костя Поляков' | 'Кирилл Стасюк
 
 export type ApprovalType = 'Квота для КП' | 'Договор' | 'NDA';
 
-export type Priority = 'Срочно' | 'Средние' | 'Не срочно';
+export type Priority = 'Срочно' | 'Средний' | 'Не срочно';
 
 export type Discount = '0%' | '0–25%' | '25–50%' | 'Больше 50%';
 
@@ -20,7 +20,7 @@ export interface NDAFormData extends BaseFormData {
   approvalType: 'NDA';
   companyDetails: string;
   companyFile?: Express.Multer.File;
-  priority: 'Срочные' | 'Средние';
+  priority: 'Срочно' | 'Средний';
 }
 
 export interface ContractFormData extends BaseFormData {

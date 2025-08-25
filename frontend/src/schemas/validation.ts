@@ -33,7 +33,7 @@ export const contractFormSchema = baseFormSchema.extend({
   sizing: z.enum(['Да', 'Нет'], {
     required_error: 'Выберите, требуется ли сайзинг',
   }),
-  priority: z.enum(['Срочно', 'Средние', 'Не срочно'], {
+  priority: z.enum(['Срочно', 'Средний', 'Не срочно'], {
     required_error: 'Выберите приоритет',
   }),
 });
