@@ -109,10 +109,10 @@ class LinearService {
   // Urgent (1) только для: NDA(Срочные) и Договор(Срочно)
   private getLinearPriority(formData: FormData): number {
     const p = (formData as any).priority as string | undefined;
-    if ((formData.approvalType === 'NDA' && p === 'Срочные') || (formData.approvalType === 'Договор' && p === 'Срочно')) {
+    if ((formData.approvalType === 'NDA' && p === 'Срочно') || (formData.approvalType === 'Договор' && p === 'Срочно')) {
       return 1; // Urgent
     }
-    if (p === 'Срочно' || p === 'Срочные') return 2; // High
+    if (p === 'Срочно') return 2; // High
     if (p === 'Средний') return 3; // Medium
     if (p === 'Не срочно') return 4; // Low
     return 0; // No priority

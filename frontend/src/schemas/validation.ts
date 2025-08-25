@@ -14,7 +14,7 @@ const ndaCore = baseFormSchema.extend({
   approvalType: z.literal('NDA'),
   companyDetails: z.string().min(1, 'Реквизиты компании обязательны для заполнения'),
   companyFile: z.instanceof(File).optional(),
-  priority: z.enum(['Срочные', 'Средний'], {
+  priority: z.enum(['Срочно', 'Средний'], {
     required_error: 'Выберите приоритет',
   }),
 });
