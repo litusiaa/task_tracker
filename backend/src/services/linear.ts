@@ -36,6 +36,7 @@ class LinearService {
     this.projectId = process.env.LINEAR_PROJECT_ID || '';
     this.projectName = process.env.LINEAR_PROJECT_NAME || '';
     this.workflowStateName = process.env.LINEAR_WORKFLOW_STATE_NAME || '';
+    this.workflowStateId = process.env.LINEAR_WORKFLOW_STATE_ID || '';
     const explicitAssignee = process.env.LINEAR_ASSIGNEE_ID || '';
 
     if (!this.apiKey) {
