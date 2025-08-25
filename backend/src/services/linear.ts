@@ -143,17 +143,32 @@ class LinearService {
   }
 
   private getTaskTitle(formData: FormData): string {
-    const template = (rulesConfig.taskTitles as any)[formData.approvalType];
-    if (!template) {
-      return `Согласование — ${formData.companyName}`;
+    const toReadablePriority = (): string => {
+      const p = (formData as any).priority as string | undefined;
+      if (!p) return '';
+      if (p === 'Срочно' || p === 'Срочные') return 'срочно';
+      if (p === 'Средние') return 'средне';
+      if (p === 'Не срочно') return 'не срочно';
+      return '';
+    };
+
+    let action = '';
+    switch (formData.approvalType) {
+      case 'Квота для КП':
+        action = 'Согласовать квоту';
+        break;
+      case 'Договор':
+        action = 'Согласовать договор';
+        break;
+      case 'NDA':
+        action = 'Согласовать NDA';
+        break;
+      default:
+        action = 'Согласовать';
     }
 
-    const priority = (formData as any).priority || '';
-
-    return template
-      .replace('{company}', formData.companyName)
-      .replace('{priority}', priority)
-      .replace('{quotationType}', (formData as any).quotationType || '');
+    const pr = toReadablePriority();
+    return pr ? `${action} ${pr}` : action;
   }
 
   private getTaskDescription(formData: FormData): string {
