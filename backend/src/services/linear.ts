@@ -339,15 +339,9 @@ class LinearService {
     await this.ensureWorkflowState();
 
     const chain = this.computeAssigneeChain(formData);
-    // Creator/initial assignee by requester if provided
-    const users = this.getUserIds();
-    const requester = (formData as any).requester as string;
-    let requesterId = '';
-    if (requester === 'Костя Поляков') requesterId = users.kostya;
-    if (requester === 'Есения Ли') requesterId = users.esenya;
-    if (requester === 'Кирилл Стасюкевич') requesterId = users.kira;
-
-    const initialAssignee = requesterId || chain[0] || this.assigneeId;
+    // Начальный исполнитель остаётся по правилам (Инна/Женя/Егор и т.д.),
+    // а "кто запрашивает квоту" фиксируем в описании.
+    const initialAssignee = chain[0] || this.assigneeId;
 
     // Build input conditionally to avoid sending empty strings to Linear (causes UUID errors)
     const parentInput: any = {
