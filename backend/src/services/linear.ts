@@ -104,12 +104,38 @@ class LinearService {
     if (found) this.workflowStateId = found.id;
   }
 
-  private getPriority(formData: FormData): number {
+  // Linear priority: 2=High, 1=Medium, 0=Low (fallback 0)
+  private getLinearPriority(formData: FormData): number {
     const p = (formData as any).priority as string | undefined;
-    if (p === 'Срочно' || p === 'Срочные') return 4; // Urgent
-    if (p === 'Средние') return 2; // Medium
-    if (p === 'Не срочно') return 1; // Low
-    return 0; // No priority
+    if (p === 'Срочно' || p === 'Срочные') return 2;
+    if (p === 'Средние') return 1;
+    if (p === 'Не срочно') return 0;
+    return 0;
+  }
+
+  private computeDueDate(formData: FormData): string | undefined {
+    // Linear expects YYYY-MM-DD
+    const toDateStr = (d: Date) => d.toISOString().slice(0, 10);
+    if (formData.approvalType === 'Квота для КП') {
+      const dd = (formData as any).approvalDeadline as string | undefined;
+      if (dd) return dd;
+    }
+    const p = (formData as any).priority as string | undefined;
+    const now = new Date();
+    if (p === 'Срочно' || p === 'Срочные') {
+      return toDateStr(now);
+    }
+    if (p === 'Средние') {
+      const d = new Date(now);
+      d.setDate(d.getDate() + 1);
+      return toDateStr(d);
+    }
+    if (p === 'Не срочно') {
+      const d = new Date(now);
+      d.setDate(d.getDate() + 2);
+      return toDateStr(d);
+    }
+    return undefined;
   }
 
   private getTaskTitle(formData: FormData): string {
@@ -273,7 +299,8 @@ class LinearService {
     await this.ensureTeam();
     const title = this.getTaskTitle(formData);
     const description = this.getTaskDescription(formData);
-    const priority = this.getPriority(formData);
+    const priority = this.getLinearPriority(formData);
+    const dueDate = this.computeDueDate(formData);
     await this.ensureProject();
     await this.ensureWorkflowState();
 
@@ -291,6 +318,7 @@ class LinearService {
     if (this.projectId) parentInput.projectId = this.projectId;
     if (this.workflowStateId) parentInput.stateId = this.workflowStateId;
 
+    if (dueDate) parentInput.dueDate = dueDate;
     const parent = await this.createIssue(parentInput);
 
     // add checklist items as sub-issues (contextual todo list)
