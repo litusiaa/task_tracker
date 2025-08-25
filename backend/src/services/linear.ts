@@ -340,14 +340,6 @@ class LinearService {
     const chain = this.computeAssigneeChain(formData);
     // Начальный исполнитель остаётся по правилам (Инна/Женя/Егор и т.д.)
     const initialAssignee = chain[0] || this.assigneeId;
-    // Инициатор (запрашивающий) — добавляем в подписчики
-    const users = this.getUserIds();
-    const requester = (formData as any).requester as string;
-    let requesterId = '';
-    if (requester === 'Костя Поляков') requesterId = users.kostya;
-    if (requester === 'Есения Ли') requesterId = users.esenya;
-    if (requester === 'Кирилл Стасюкевич') requesterId = users.kira;
-
     // Build input conditionally to avoid sending empty strings to Linear (causes UUID errors)
     const parentInput: any = {
       teamId: this.teamId!,
@@ -358,7 +350,6 @@ class LinearService {
     };
     if (this.projectId) parentInput.projectId = this.projectId;
     if (this.workflowStateId) parentInput.stateId = this.workflowStateId;
-    if (requesterId) parentInput.subscriberIds = [requesterId];
 
     if (dueDate) parentInput.dueDate = dueDate;
     const parent = await this.createIssue(parentInput);
