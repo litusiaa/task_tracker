@@ -105,11 +105,16 @@ class LinearService {
     if (found) this.workflowStateId = found.id;
   }
 
-  // Linear priority mapping to avoid 'Urgent': High=3, Medium=2, Low=1, None=0
+  // Linear priority mapping
+  // Urgent (4) только для: NDA(Срочные) и Договор(Срочно)
+  // Иначе: High=3, Medium=2, Low=1, None=0
   private getLinearPriority(formData: FormData): number {
     const p = (formData as any).priority as string | undefined;
+    if ((formData.approvalType === 'NDA' && p === 'Срочные') || (formData.approvalType === 'Договор' && p === 'Срочно')) {
+      return 4; // Urgent
+    }
     if (p === 'Срочно' || p === 'Срочные') return 3; // High
-    if (p === 'Средние') return 2; // Medium
+    if (p === 'Средние' || p === 'Средний') return 2; // Medium
     if (p === 'Не срочно') return 1; // Low
     return 0; // No priority
   }
@@ -173,32 +178,26 @@ class LinearService {
 
   private getTaskDescription(formData: FormData): string {
     const lines: string[] = [];
-    lines.push(`Общая информация:`);
-    lines.push(`• Компания: ${formData.companyName}`);
-    lines.push(`• Запрашивающий: ${formData.requester}`);
+    lines.push(`Информация:`);
     lines.push(`• Тип согласования: ${formData.approvalType}`);
-    lines.push('');
+    lines.push(`• Запрашивающий: ${formData.requester}`);
+    lines.push(`• Компания: ${formData.companyName}`);
 
-    switch (formData.approvalType) {
-      case 'NDA':
-        lines.push(`Информация для NDA:`);
-        lines.push(`• Реквизиты компании: ${(formData as any).companyDetails}`);
-        lines.push(`• Приоритет: ${(formData as any).priority}`);
-        break;
-      case 'Договор':
-        lines.push(`Информация для Договора:`);
-        lines.push(`• Ссылка на файл квоты: ${(formData as any).quotaFileUrl}`);
-        lines.push(`• Сайзинг: ${(formData as any).sizing}`);
-        lines.push(`• Приоритет: ${(formData as any).priority}`);
-        break;
-      case 'Квота для КП':
-        lines.push(`Информация для Квоты:`);
-        lines.push(`• Ссылка на файл квоты: ${(formData as any).quotaFileUrl}`);
-        lines.push(`• Скидка: ${(formData as any).discount}`);
-        lines.push(`• Тип: ${(formData as any).quotationType}`);
-        lines.push(`• Сайзинг: ${(formData as any).sizing}`);
-        lines.push(`• Срок согласования: ${(formData as any).approvalDeadline}`);
-        break;
+    if (formData.approvalType === 'NDA') {
+      lines.push(`• Реквизиты компании: ${(formData as any).companyDetails}`);
+      lines.push(`• Приоритет: ${(formData as any).priority}`);
+    }
+    if (formData.approvalType === 'Договор') {
+      lines.push(`• Ссылка на файл квоты: ${(formData as any).quotaFileUrl}`);
+      lines.push(`• Сайзинг: ${(formData as any).sizing}`);
+      lines.push(`• Приоритет: ${(formData as any).priority}`);
+    }
+    if (formData.approvalType === 'Квота для КП') {
+      lines.push(`• Ссылка на файл квоты: ${(formData as any).quotaFileUrl}`);
+      lines.push(`• Скидка: ${(formData as any).discount}`);
+      lines.push(`• Тип: ${(formData as any).quotationType}`);
+      lines.push(`• Сайзинг: ${(formData as any).sizing}`);
+      lines.push(`• Срок согласования: ${(formData as any).approvalDeadline}`);
     }
 
     // Примечание: дополнительные ответственные добавим в конец описания
@@ -258,6 +257,9 @@ class LinearService {
       egor: process.env.LINEAR_USER_EGOR_ID || '',
       alexH: process.env.LINEAR_USER_ALEXH_ID || '',
       zhenya: process.env.LINEAR_USER_ZHENYA_ID || '',
+      kostya: process.env.LINEAR_USER_KOSTYA_ID || '',
+      esenya: process.env.LINEAR_USER_ESENYA_ID || '',
+      kira: process.env.LINEAR_USER_KIRA_ID || '',
     };
   }
 
@@ -337,7 +339,15 @@ class LinearService {
     await this.ensureWorkflowState();
 
     const chain = this.computeAssigneeChain(formData);
-    const initialAssignee = chain[0] || this.assigneeId;
+    // Creator/initial assignee by requester if provided
+    const users = this.getUserIds();
+    const requester = (formData as any).requester as string;
+    let requesterId = '';
+    if (requester === 'Костя Поляков') requesterId = users.kostya;
+    if (requester === 'Есения Ли') requesterId = users.esenya;
+    if (requester === 'Кирилл Стасюкевич') requesterId = users.kira;
+
+    const initialAssignee = requesterId || chain[0] || this.assigneeId;
 
     // Build input conditionally to avoid sending empty strings to Linear (causes UUID errors)
     const parentInput: any = {
