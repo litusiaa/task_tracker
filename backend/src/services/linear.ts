@@ -353,50 +353,7 @@ class LinearService {
     if (dueDate) parentInput.dueDate = dueDate;
     const parent = await this.createIssue(parentInput);
 
-    // add checklist items as sub-issues (contextual todo list)
-    const checklist = this.getChecklistItems(formData);
-    for (const content of checklist) {
-      const subInput: any = {
-        teamId: this.teamId!,
-        title: content,
-        parentId: parent.id,
-        assigneeId: initialAssignee,
-      };
-      if (this.projectId) subInput.projectId = this.projectId;
-      if (this.workflowStateId) subInput.stateId = this.workflowStateId;
-      await this.createIssue(subInput);
-    }
-
-    // Parallel approvers for discount > 50% (Егор и Лёша одновременно)
-    if (formData.approvalType === 'Квота для КП') {
-      const users = this.getUserIds();
-      const discount = (formData as any).discount as string;
-      const sizing = (formData as any).sizing as string;
-
-      const createParallel = async (title: string, assignee: string | undefined) => {
-        if (!assignee) return;
-        const subInput: any = {
-          teamId: this.teamId!,
-          title,
-          parentId: parent.id,
-          assigneeId: assignee,
-        };
-        if (this.projectId) subInput.projectId = this.projectId;
-        if (this.workflowStateId) subInput.stateId = this.workflowStateId;
-        await this.createIssue(subInput);
-      };
-
-      if (discount === 'Больше 50%') {
-        // Если сайзинг да — Женя уже стоит как первый исполнитель основной задачи; параллельные согласующие идут подзадачами
-        await createParallel('Параллельное согласование: Егор', users.egor);
-        await createParallel('Параллельное согласование: Лёша Х', users.alexH);
-      }
-
-      if ((discount === '0–25%' || discount === '25–50%') && sizing !== 'Да') {
-        // Для 0–50 без сайзинга: параллельным делаем только Егора, финал — Инна по основной цепочке
-        await createParallel('Параллельное согласование: Егор', users.egor);
-      }
-    }
+    // По просьбе: не создаём подзадачи и параллельные шаги. Оставляем только главную задачу.
 
     return { id: parent.id, url: parent.url, title: parent.title, description: parent.description || '' };
   }
