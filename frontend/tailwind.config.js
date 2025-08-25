@@ -8,10 +8,10 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
+          50: '#ffe4ef',
+          500: '#ff3b8a',
+          600: '#e7337b',
+          700: '#c52a69',
         },
         success: {
           50: '#f0fdf4',
@@ -22,7 +22,8 @@ export default {
           50: '#fef2f2',
           500: '#ef4444',
           600: '#dc2626',
-        }
+        },
+        brandBlack: '#111111'
       }
     },
   },
