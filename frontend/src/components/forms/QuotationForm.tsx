@@ -117,10 +117,11 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
         required
       >
         <Input
-          type="date"
+          type="datetime-local"
           value={approvalDeadline}
           onChange={onApprovalDeadlineChange}
           error={!!errors.approvalDeadline}
+          step={900}
         />
       </FormField>
     </div>

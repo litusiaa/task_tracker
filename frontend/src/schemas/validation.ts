@@ -51,15 +51,12 @@ export const quotationFormSchema = baseFormSchema.extend({
     required_error: 'Выберите, требуется ли сайзинг',
   }),
   approvalDeadline: z.string().refine(
-    (date) => {
-      const selectedDate = new Date(date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return selectedDate >= today;
+    (value) => {
+      if (!value) return false;
+      const selected = new Date(value);
+      return selected.getTime() >= Date.now();
     },
-    {
-      message: 'Срок согласования не может быть в прошлом',
-    }
+    { message: 'Срок согласования не может быть в прошлом' }
   ),
 });
 
