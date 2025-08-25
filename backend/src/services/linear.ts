@@ -105,13 +105,13 @@ class LinearService {
     if (found) this.workflowStateId = found.id;
   }
 
-  // Linear priority: 2=High, 1=Medium, 0=Low (fallback 0)
+  // Linear priority mapping to avoid 'Urgent': High=3, Medium=2, Low=1, None=0
   private getLinearPriority(formData: FormData): number {
     const p = (formData as any).priority as string | undefined;
-    if (p === 'Срочно' || p === 'Срочные') return 2;
-    if (p === 'Средние') return 1;
-    if (p === 'Не срочно') return 0;
-    return 0;
+    if (p === 'Срочно' || p === 'Срочные') return 3; // High
+    if (p === 'Средние') return 2; // Medium
+    if (p === 'Не срочно') return 1; // Low
+    return 0; // No priority
   }
 
   private computeDueDate(formData: FormData): string | undefined {
@@ -168,7 +168,7 @@ class LinearService {
     }
 
     const pr = toReadablePriority();
-    return pr ? `${action} ${pr}` : action;
+    return pr ? `${action}. Приоритет — ${pr}` : action;
   }
 
   private getTaskDescription(formData: FormData): string {
