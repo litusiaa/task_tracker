@@ -105,17 +105,16 @@ class LinearService {
     if (found) this.workflowStateId = found.id;
   }
 
-  // Linear priority mapping
-  // Urgent (4) только для: NDA(Срочные) и Договор(Срочно)
-  // Иначе: High=3, Medium=2, Low=1, None=0
+  // Linear priority mapping (API expects 0..4 where 1=Urgent, 2=High, 3=Medium, 4=Low)
+  // Urgent (1) только для: NDA(Срочные) и Договор(Срочно)
   private getLinearPriority(formData: FormData): number {
     const p = (formData as any).priority as string | undefined;
     if ((formData.approvalType === 'NDA' && p === 'Срочные') || (formData.approvalType === 'Договор' && p === 'Срочно')) {
-      return 4; // Urgent
+      return 1; // Urgent
     }
-    if (p === 'Срочно' || p === 'Срочные') return 3; // High
-    if (p === 'Средние' || p === 'Средний') return 2; // Medium
-    if (p === 'Не срочно') return 1; // Low
+    if (p === 'Срочно' || p === 'Срочные') return 2; // High
+    if (p === 'Средние' || p === 'Средний') return 3; // Medium
+    if (p === 'Не срочно') return 4; // Low
     return 0; // No priority
   }
 
