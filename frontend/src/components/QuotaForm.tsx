@@ -164,9 +164,21 @@ export const QuotaForm: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">
-        Согласование квот
-      </h1>
+      <div className="relative flex items-center justify-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 text-center">
+          Согласование квот
+        </h1>
+        <svg
+          className="absolute right-6 -top-2 w-10 h-10 text-primary-500"
+          viewBox="0 0 60 60"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <polygon points="8,45 18,15 26,18 16,48" stroke="currentColor" stroke-width="3" fill="none"/>
+          <polygon points="26,48 30,12 40,12 36,48" stroke="currentColor" stroke-width="3" fill="none"/>
+          <polygon points="38,48 48,20 56,26 46,50" stroke="currentColor" stroke-width="3" fill="none"/>
+        </svg>
+      </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Общие поля */}
