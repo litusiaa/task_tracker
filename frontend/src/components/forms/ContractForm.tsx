@@ -24,7 +24,7 @@ const sizingOptions: { value: string; label: string }[] = [
 
 const priorities: { value: string; label: string }[] = [
   { value: 'Срочно', label: 'Срочно (≤ 4 ч, >10 млн в год или стратегический клиент)' },
-  { value: 'Средние', label: 'Средние (≤ 1 день, 9,9–3 млн в год)' },
+  { value: 'Средний', label: 'Средний (≤ 1 день, 9,9–3 млн в год)' },
   { value: 'Не срочно', label: 'Не срочно (до 2 дней, все остальные договоры)' },
 ];
 

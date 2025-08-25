@@ -18,8 +18,8 @@ interface NDAFormProps {
 }
 
 const priorities: { value: string; label: string }[] = [
-  { value: 'Срочные', label: 'Срочные (≤ 4 ч)' },
-  { value: 'Средние', label: 'Средние (≤ 1 день)' },
+  { value: 'Срочные', label: 'Срочные: срок подготовки — не более, чем пол дня (4 часа)' },
+  { value: 'Средний', label: 'Средний: срок подготовки — не более, чем 1 день' },
 ];
 
 export const NDAForm: React.FC<NDAFormProps> = ({

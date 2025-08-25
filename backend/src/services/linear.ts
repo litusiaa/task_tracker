@@ -113,7 +113,7 @@ class LinearService {
       return 1; // Urgent
     }
     if (p === 'Срочно' || p === 'Срочные') return 2; // High
-    if (p === 'Средние' || p === 'Средний') return 3; // Medium
+    if (p === 'Средний') return 3; // Medium
     if (p === 'Не срочно') return 4; // Low
     return 0; // No priority
   }

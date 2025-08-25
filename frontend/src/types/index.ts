@@ -2,7 +2,7 @@ export type Requester = 'Костя Поляков' | 'Кирилл Стасюк
 
 export type ApprovalType = 'Квота для КП' | 'Договор' | 'NDA';
 
-export type Priority = 'Срочно' | 'Средние' | 'Не срочно';
+export type Priority = 'Срочно' | 'Средний' | 'Не срочно';
 
 export type Discount = '0%' | '0–25%' | '25–50%' | 'Больше 50%';
 
