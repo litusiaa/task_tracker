@@ -114,30 +114,29 @@ class LinearService {
   }
 
   private computeDueDate(formData: FormData): string | undefined {
-    // Linear accepts date or ISO string; we'll send ISO with time if provided
-    const toISO = (d: Date) => d.toISOString();
+    // Linear dueDate expects a date string (YYYY-MM-DD). Trim time if provided.
+    const toDateStr = (d: Date) => d.toISOString().slice(0, 10);
     if (formData.approvalType === 'Квота для КП') {
       const dd = (formData as any).approvalDeadline as string | undefined;
       if (dd) {
-        // dd from datetime-local is already local time; convert to ISO
         const d = new Date(dd);
-        return toISO(d);
+        return toDateStr(d);
       }
     }
     const p = (formData as any).priority as string | undefined;
     const now = new Date();
     if (p === 'Срочно' || p === 'Срочные') {
-      return toISO(now);
+      return toDateStr(now);
     }
     if (p === 'Средние') {
       const d = new Date(now);
       d.setDate(d.getDate() + 1);
-      return toISO(d);
+      return toDateStr(d);
     }
     if (p === 'Не срочно') {
       const d = new Date(now);
       d.setDate(d.getDate() + 2);
-      return toISO(d);
+      return toDateStr(d);
     }
     return undefined;
   }
