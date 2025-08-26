@@ -2,12 +2,17 @@ import { z } from 'zod';
 
 export const baseFormSchema = z.object({
   companyName: z.string().min(1, 'Название компании обязательно для заполнения'),
-  requester: z.enum(['Костя Поляков', 'Кирилл Стасюкевич', 'Есения Ли'], {
+  requester: z.enum(['Костя Поляков', 'Кирилл Стасюкевич', 'Есения Ли', 'Сотрудник Dbrain'], {
     required_error: 'Выберите, кто запрашивает квоту',
   }),
   approvalType: z.enum(['Квота для КП', 'Договор', 'NDA'], {
     required_error: 'Выберите тип согласования',
   }),
+  requesterOtherName: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if ((data as any).requester === 'Сотрудник Dbrain' && !((data as any).requesterOtherName && (data as any).requesterOtherName.trim().length > 0)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Укажите имя сотрудника', path: ['requesterOtherName'] });
+  }
 });
 
 const ndaCore = baseFormSchema.extend({

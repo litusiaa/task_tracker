@@ -1,4 +1,4 @@
-export type Requester = 'Костя Поляков' | 'Кирилл Стасюкевич' | 'Есения Ли';
+export type Requester = 'Костя Поляков' | 'Кирилл Стасюкевич' | 'Есения Ли' | 'Сотрудник Dbrain';
 
 export type ApprovalType =
   | 'Квота для КП'
@@ -20,6 +20,7 @@ export interface BaseFormData {
   companyName: string;
   requester: Requester;
   approvalType: ApprovalType;
+  requesterOtherName?: string;
 }
 
 export interface NDAFormData extends BaseFormData {

@@ -184,7 +184,10 @@ class LinearService {
     const lines: string[] = [];
     lines.push(`Информация:`);
     lines.push(`• Тип согласования: ${formData.approvalType}`);
-    lines.push(`• Запрашивающий: ${formData.requester}`);
+    const requesterName = formData.requester === 'Сотрудник Dbrain' && (formData as any).requesterOtherName
+      ? `${(formData as any).requesterOtherName} (Сотрудник Dbrain)`
+      : formData.requester;
+    lines.push(`• Запрашивающий: ${requesterName}`);
     lines.push(`• Компания: ${formData.companyName}`);
 
     if (formData.approvalType === 'Согласовать: Запрос на расход') {
