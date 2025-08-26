@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const baseFormSchema = z.object({
+const baseCore = z.object({
   companyName: z.string().min(1, 'Название компании обязательно для заполнения'),
   requester: z.enum(['Костя Поляков', 'Кирилл Стасюкевич', 'Есения Ли', 'Сотрудник Dbrain'], {
     required_error: 'Выберите, кто запрашивает квоту',
@@ -16,13 +16,11 @@ export const baseFormSchema = z.object({
     required_error: 'Выберите тип согласования',
   }),
   requesterOtherName: z.string().optional(),
-}).superRefine((data, ctx) => {
-  if ((data as any).requester === 'Сотрудник Dbrain' && !((data as any).requesterOtherName && (data as any).requesterOtherName.trim().length > 0)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Укажите имя сотрудника', path: ['requesterOtherName'] });
-  }
 });
 
-export const ndaFormSchema = baseFormSchema.extend({
+export const baseFormSchema = baseCore;
+
+export const ndaFormSchema = baseCore.extend({
   approvalType: z.literal('NDA'),
   companyDetails: z.string().min(1, 'Реквизиты компании обязательны для заполнения'),
   priority: z.enum(['Срочно', 'Средний'], {
@@ -30,7 +28,7 @@ export const ndaFormSchema = baseFormSchema.extend({
   }),
 });
 
-export const contractFormSchema = baseFormSchema.extend({
+export const contractFormSchema = baseCore.extend({
   approvalType: z.literal('Договор'),
   quotaFileUrl: z.string().url('Введите корректную ссылку на файл квоты'),
   sizing: z.enum(['Да', 'Нет'], {
@@ -41,7 +39,7 @@ export const contractFormSchema = baseFormSchema.extend({
   }),
 });
 
-export const quotationFormSchema = baseFormSchema.extend({
+export const quotationFormSchema = baseCore.extend({
   approvalType: z.literal('Квота для КП'),
   quotaFileUrl: z.string().url('Введите корректную ссылку на файл квоты'),
   discount: z.enum(['0%', '0–25%', '25–50%', 'Больше 50%'], {
@@ -66,7 +64,7 @@ export const quotationFormSchema = baseFormSchema.extend({
   ),
 });
 
-export const expenseRequestFormSchema = baseFormSchema.extend({
+export const expenseRequestFormSchema = baseCore.extend({
   approvalType: z.literal('Согласовать: Запрос на расход'),
   expenseName: z.string().min(1, 'Название расхода обязательно'),
   expenseDescription: z.string().min(1, 'Описание расхода обязательно'),
@@ -83,13 +81,13 @@ export const expenseRequestFormSchema = baseFormSchema.extend({
   contactTelegram: z.string().min(1, 'Укажите контакт в Telegram'),
 });
 
-export const dsFormSchema = baseFormSchema.extend({
+export const dsFormSchema = baseCore.extend({
   approvalType: z.literal('Согласовать: ДС'),
   dsType: z.enum(['Продление сроков', 'Изменение условий'], { required_error: 'Выберите вид ДС' }),
   dsDescription: z.string().min(1, 'Опишите выбранный вариант'),
 });
 
-export const servicePurchaseFormSchema = baseFormSchema.extend({
+export const servicePurchaseFormSchema = baseCore.extend({
   approvalType: z.literal('Согласовать: Запрос на закупку сервисов в Dbrain'),
   serviceName: z.string().min(1, 'Название сервиса обязательно'),
   serviceAccessDate: z.string().min(1, 'Укажите дату доступа'),
@@ -118,7 +116,7 @@ export const servicePurchaseFormSchema = baseFormSchema.extend({
   }
 });
 
-export const formSchema = z.discriminatedUnion('approvalType', [
+const discriminated = z.discriminatedUnion('approvalType', [
   ndaFormSchema,
   contractFormSchema,
   quotationFormSchema,
@@ -126,5 +124,11 @@ export const formSchema = z.discriminatedUnion('approvalType', [
   dsFormSchema,
   servicePurchaseFormSchema,
 ]);
+
+export const formSchema = discriminated.superRefine((data, ctx) => {
+  if ((data as any).requester === 'Сотрудник Dbrain' && !((data as any).requesterOtherName && (data as any).requesterOtherName.trim().length > 0)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Укажите имя сотрудника', path: ['requesterOtherName'] });
+  }
+});
 
 export type FormSchema = z.infer<typeof formSchema>;
