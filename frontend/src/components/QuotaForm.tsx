@@ -8,6 +8,10 @@ import { BaseForm } from './forms/BaseForm';
 import { NDAForm } from './forms/NDAForm';
 import { ContractForm } from './forms/ContractForm';
 import { QuotationForm } from './forms/QuotationForm';
+// New forms (to be implemented)
+// import { ExpenseRequestForm } from './forms/ExpenseRequestForm';
+// import { DSForm } from './forms/DSForm';
+// import { ServicePurchaseForm } from './forms/ServicePurchaseForm';
 import { CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 
 export const QuotaForm: React.FC = () => {
@@ -112,6 +116,18 @@ export const QuotaForm: React.FC = () => {
             }}
           />
         );
+      // case 'Согласовать: Запрос на расход':
+      //   return (
+      //     <ExpenseRequestForm .../>
+      //   );
+      // case 'Согласовать: ДС':
+      //   return (
+      //     <DSForm .../>
+      //   );
+      // case 'Согласовать: Запрос на закупку сервисов в Dbrain':
+      //   return (
+      //     <ServicePurchaseForm .../>
+      //   );
       default:
         return null;
     }
@@ -208,6 +224,9 @@ export const QuotaForm: React.FC = () => {
               {approvalType === 'NDA' && 'Информация для NDA'}
               {approvalType === 'Договор' && 'Информация для Договора'}
               {approvalType === 'Квота для КП' && 'Информация для Квоты'}
+              {approvalType === 'Согласовать: Запрос на расход' && 'Информация по расходу'}
+              {approvalType === 'Согласовать: ДС' && 'Информация по ДС'}
+              {approvalType === 'Согласовать: Запрос на закупку сервисов в Dbrain' && 'Информация по закупке сервиса'}
             </h2>
             {renderSectionForm()}
           </div>

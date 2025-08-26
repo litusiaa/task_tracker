@@ -28,6 +28,9 @@ const approvalTypes: { value: ApprovalType; label: string }[] = [
   { value: 'Квота для КП', label: 'Квота для КП' },
   { value: 'Договор', label: 'Договор' },
   { value: 'NDA', label: 'NDA' },
+  { value: 'Согласовать: Запрос на расход', label: 'Согласовать: Запрос на расход' },
+  { value: 'Согласовать: ДС', label: 'Согласовать: ДС' },
+  { value: 'Согласовать: Запрос на закупку сервисов в Dbrain', label: 'Согласовать: Запрос на закупку сервисов в Dbrain' },
 ];
 
 export const BaseForm: React.FC<BaseFormProps> = ({

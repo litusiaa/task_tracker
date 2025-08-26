@@ -167,6 +167,11 @@ class LinearService {
       case 'NDA':
         action = 'Согласовать NDA';
         break;
+      case 'Согласовать: Запрос на расход':
+      case 'Согласовать: ДС':
+      case 'Согласовать: Запрос на закупку сервисов в Dbrain':
+        action = formData.approvalType;
+        break;
       default:
         action = 'Согласовать';
     }
@@ -181,6 +186,34 @@ class LinearService {
     lines.push(`• Тип согласования: ${formData.approvalType}`);
     lines.push(`• Запрашивающий: ${formData.requester}`);
     lines.push(`• Компания: ${formData.companyName}`);
+
+    if (formData.approvalType === 'Согласовать: Запрос на расход') {
+      lines.push(`• Название расхода: ${(formData as any).expenseName}`);
+      lines.push(`• Описание расхода: ${(formData as any).expenseDescription}`);
+      lines.push(`• Сумма и валюта: ${(formData as any).expenseAmountCurrency}`);
+      lines.push(`• Тип траты: ${(formData as any).expenseType}`);
+      lines.push(`• Цель: ${(formData as any).expenseGoal}`);
+      lines.push(`• Пояснение: ${(formData as any).expenseGoalExplanation}`);
+      lines.push(`• Контакт: ${(formData as any).contactTelegram}`);
+    }
+    if (formData.approvalType === 'Согласовать: ДС') {
+      lines.push(`• Вид ДС: ${(formData as any).dsType}`);
+      lines.push(`• Описание: ${(formData as any).dsDescription}`);
+    }
+    if (formData.approvalType === 'Согласовать: Запрос на закупку сервисов в Dbrain') {
+      lines.push(`• Название сервиса: ${(formData as any).serviceName}`);
+      lines.push(`• Когда нужен доступ: ${(formData as any).serviceAccessDate}`);
+      lines.push(`• Описание: ${(formData as any).serviceDescription}`);
+      lines.push(`• Задачи: ${(formData as any).serviceGoals?.join(', ')}`);
+      if ((formData as any).goalEconomyDescription) lines.push(`• Экономия: ${(formData as any).goalEconomyDescription}`);
+      if ((formData as any).goalClientDescription) lines.push(`• Для клиента: ${(formData as any).goalClientDescription}`);
+      if ((formData as any).goalProductDescription) lines.push(`• Для продукта: ${(formData as any).goalProductDescription}`);
+      lines.push(`• Стоимость: ${(formData as any).serviceCostCurrency}`);
+      lines.push(`• Периодичность платежа: ${(formData as any).paymentPeriodicity}`);
+      lines.push(`• Срок закупки: ${(formData as any).purchaseDuration}`);
+      lines.push(`• Происхождение сервиса: ${(formData as any).serviceOrigin}`);
+      lines.push(`• Контакт: ${(formData as any).contactTelegram}`);
+    }
 
     if (formData.approvalType === 'NDA') {
       lines.push(`• Реквизиты компании: ${(formData as any).companyDetails}`);
@@ -259,12 +292,22 @@ class LinearService {
       kostya: process.env.LINEAR_USER_KOSTYA_ID || '',
       esenya: process.env.LINEAR_USER_ESENYA_ID || '',
       kira: process.env.LINEAR_USER_KIRA_ID || '',
+      katya: process.env.LINEAR_USER_KATYA_ID || '',
     };
   }
 
   private computeAssigneeChain(formData: FormData): string[] {
     const users = this.getUserIds();
     const chain: string[] = [];
+
+    if (
+      formData.approvalType === 'Согласовать: Запрос на расход' ||
+      formData.approvalType === 'Согласовать: ДС' ||
+      formData.approvalType === 'Согласовать: Запрос на закупку сервисов в Dbrain'
+    ) {
+      if (users.katya) chain.push(users.katya);
+      return chain;
+    }
 
     if (formData.approvalType === 'NDA') {
       if (users.inna) chain.push(users.inna);
