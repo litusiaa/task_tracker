@@ -103,17 +103,6 @@ export const servicePurchaseFormSchema = baseCore.extend({
   purchaseDuration: z.enum(['1 месяц', '2–3 месяца', 'Бессрочно'], { required_error: 'Выберите срок закупки' }),
   serviceOrigin: z.enum(['Российский', 'Иностранный'], { required_error: 'Выберите происхождение сервиса' }),
   contactTelegram: z.string().min(1, 'Укажите контакт в Telegram'),
-}).superRefine((data, ctx) => {
-  const goals = (data as any).serviceGoals as string[];
-  if (goals?.includes('Серьезная экономия текущих ресурсов') && !(data as any).goalEconomyDescription) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите экономию текущих ресурсов', path: ['goalEconomyDescription'] });
-  }
-  if (goals?.includes('Для клиента') && !(data as any).goalClientDescription) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите, что доработать и для какого клиента', path: ['goalClientDescription'] });
-  }
-  if (goals?.includes('Для нашего продукта в целом') && !(data as any).goalProductDescription) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите доработку для продукта', path: ['goalProductDescription'] });
-  }
 });
 
 const discriminated = z.discriminatedUnion('approvalType', [
@@ -126,8 +115,22 @@ const discriminated = z.discriminatedUnion('approvalType', [
 ]);
 
 export const formSchema = discriminated.superRefine((data, ctx) => {
+  // Доп. проверка имени сотрудника, если выбран вариант "Сотрудник Dbrain"
   if ((data as any).requester === 'Сотрудник Dbrain' && !((data as any).requesterOtherName && (data as any).requesterOtherName.trim().length > 0)) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Укажите имя сотрудника', path: ['requesterOtherName'] });
+  }
+  // Динамические пояснения по целям сервиса
+  if (data.approvalType === 'Согласовать: Запрос на закупку сервисов в Dbrain') {
+    const goals = (data as any).serviceGoals as string[];
+    if (goals?.includes('Серьезная экономия текущих ресурсов') && !(data as any).goalEconomyDescription) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите экономию текущих ресурсов', path: ['goalEconomyDescription'] });
+    }
+    if (goals?.includes('Для клиента') && !(data as any).goalClientDescription) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите, что доработать и для какого клиента', path: ['goalClientDescription'] });
+    }
+    if (goals?.includes('Для нашего продукта в целом') && !(data as any).goalProductDescription) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите доработку для продукта', path: ['goalProductDescription'] });
+    }
   }
 });
 
