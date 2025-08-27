@@ -9,10 +9,6 @@ export const baseFormSchema = z.object({
     required_error: 'Выберите тип согласования',
   }),
   requesterOtherName: z.string().optional(),
-}).superRefine((data, ctx) => {
-  if ((data as any).requester === 'Сотрудник Dbrain' && !((data as any).requesterOtherName && (data as any).requesterOtherName.trim().length > 0)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Укажите имя сотрудника', path: ['requesterOtherName'] });
-  }
 });
 
 const ndaCore = baseFormSchema.extend({
@@ -105,17 +101,6 @@ export const servicePurchaseFormSchema = baseFormSchema.extend({
   purchaseDuration: z.enum(['1 месяц', '2–3 месяца', 'Бессрочно'], { required_error: 'Выберите срок закупки' }),
   serviceOrigin: z.enum(['Российский', 'Иностранный'], { required_error: 'Выберите происхождение сервиса' }),
   contactTelegram: z.string().min(1, 'Укажите контакт в Telegram'),
-}).superRefine((data, ctx) => {
-  const goals = data.serviceGoals || [];
-  if (goals.includes('Серьезная экономия текущих ресурсов') && !data.goalEconomyDescription) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите экономию текущих ресурсов', path: ['goalEconomyDescription'] });
-  }
-  if (goals.includes('Для клиента') && !data.goalClientDescription) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите, что доработать и для какого клиента', path: ['goalClientDescription'] });
-  }
-  if (goals.includes('Для нашего продукта в целом') && !data.goalProductDescription) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите доработку для продукта', path: ['goalProductDescription'] });
-  }
 });
 
 const discriminated = z.discriminatedUnion('approvalType', [
@@ -128,6 +113,7 @@ const discriminated = z.discriminatedUnion('approvalType', [
 ]);
 
 export const formSchema = discriminated.superRefine((data, ctx) => {
+  // NDA: либо реквизиты, либо файл
   if (data.approvalType === 'NDA') {
     const details = (data as any).companyDetails as string | undefined;
     const file = (data as any).companyFile as File | undefined;
@@ -137,6 +123,23 @@ export const formSchema = discriminated.superRefine((data, ctx) => {
         message: 'Необходимо заполнить реквизиты компании или загрузить файл',
         path: ['companyDetails'],
       });
+    }
+  }
+  // Requester: имя для «Сотрудник Dbrain»
+  if ((data as any).requester === 'Сотрудник Dbrain' && !((data as any).requesterOtherName && (data as any).requesterOtherName.trim().length > 0)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Укажите имя сотрудника', path: ['requesterOtherName'] });
+  }
+  // Service purchase: динамические пояснения по задачам
+  if (data.approvalType === 'Согласовать: Запрос на закупку сервисов в Dbrain') {
+    const goals = (data as any).serviceGoals as string[] | undefined;
+    if (goals?.includes('Серьезная экономия текущих ресурсов') && !(data as any).goalEconomyDescription) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите экономию текущих ресурсов', path: ['goalEconomyDescription'] });
+    }
+    if (goals?.includes('Для клиента') && !(data as any).goalClientDescription) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите, что доработать и для какого клиента', path: ['goalClientDescription'] });
+    }
+    if (goals?.includes('Для нашего продукта в целом') && !(data as any).goalProductDescription) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите доработку для продукта', path: ['goalProductDescription'] });
     }
   }
 });
