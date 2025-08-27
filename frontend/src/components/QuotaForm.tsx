@@ -38,6 +38,9 @@ export const QuotaForm: React.FC = () => {
     });
 
   const approvalType = watch('approvalType');
+  const isSimpleType = ['Запрос на расход', 'ДС', 'Запрос на закупку сервисов в Dbrain'].includes(
+    (approvalType as any) || ''
+  );
 
   const onSubmit = async (data: FormSchema) => {
     setIsSubmitting(true);
@@ -308,8 +311,8 @@ export const QuotaForm: React.FC = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={!isValid || isSubmitting}
-            className={`btn-primary ${!isValid || isSubmitting ? 'btn-disabled' : ''}`}
+            disabled={(isSubmitting || (!isSimpleType && !isValid))}
+            className={`btn-primary ${(isSubmitting || (!isSimpleType && !isValid)) ? 'btn-disabled' : ''}`}
           >
             {isSubmitting ? 'Отправка...' : `Отправить в ${planner}`}
           </button>

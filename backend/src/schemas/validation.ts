@@ -85,15 +85,8 @@ const discriminated = z.discriminatedUnion('approvalType', [
   servicePurchaseFormSchema,
 ]);
 
-export const formSchema = discriminated.superRefine((data, ctx) => {
-  // Доп. проверка имени сотрудника, если выбран вариант "Сотрудник Dbrain"
-  if ((data as any).requester === 'Сотрудник Dbrain' && !((data as any).requesterOtherName && (data as any).requesterOtherName.trim().length > 0)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Укажите имя сотрудника', path: ['requesterOtherName'] });
-  }
-  // Динамические пояснения по целям сервиса
-  if (data.approvalType === 'Запрос на закупку сервисов в Dbrain') {
-    // временно без доп. проверок
-  }
+export const formSchema = discriminated.superRefine((_data, _ctx) => {
+  // временно без доп. проверок для упрощённых типов
 });
 
 export type FormSchema = z.infer<typeof formSchema>;
