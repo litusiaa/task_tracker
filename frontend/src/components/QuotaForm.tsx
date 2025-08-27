@@ -8,10 +8,9 @@ import { BaseForm } from './forms/BaseForm';
 import { NDAForm } from './forms/NDAForm';
 import { ContractForm } from './forms/ContractForm';
 import { QuotationForm } from './forms/QuotationForm';
-// New forms (to be implemented)
-// import { ExpenseRequestForm } from './forms/ExpenseRequestForm';
-// import { DSForm } from './forms/DSForm';
-// import { ServicePurchaseForm } from './forms/ServicePurchaseForm';
+import { ExpenseRequestForm } from './forms/ExpenseRequestForm';
+import { DSForm } from './forms/DSForm';
+import { ServicePurchaseForm } from './forms/ServicePurchaseForm';
 import { CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 
 export const QuotaForm: React.FC = () => {
@@ -113,6 +112,71 @@ export const QuotaForm: React.FC = () => {
               quotationType: (errors as any).quotationType?.message as string | undefined,
               sizing: (errors as any).sizing?.message as string | undefined,
               approvalDeadline: (errors as any).approvalDeadline?.message as string | undefined,
+            }}
+          />
+        );
+      case 'Запрос на расход':
+        return (
+          <ExpenseRequestForm
+            expenseName={watch('expenseName') || ''}
+            expenseDescription={watch('expenseDescription') || ''}
+            expenseAmountCurrency={watch('expenseAmountCurrency') || ''}
+            expenseType={watch('expenseType') || ''}
+            expenseGoal={watch('expenseGoal') || ''}
+            expenseGoalExplanation={watch('expenseGoalExplanation') || ''}
+            contactTelegram={watch('contactTelegram') || ''}
+            onChange={(field, value) => setField(field as any, value)}
+            errors={{
+              expenseName: (errors as any).expenseName?.message as string | undefined,
+              expenseDescription: (errors as any).expenseDescription?.message as string | undefined,
+              expenseAmountCurrency: (errors as any).expenseAmountCurrency?.message as string | undefined,
+              expenseType: (errors as any).expenseType?.message as string | undefined,
+              expenseGoal: (errors as any).expenseGoal?.message as string | undefined,
+              expenseGoalExplanation: (errors as any).expenseGoalExplanation?.message as string | undefined,
+              contactTelegram: (errors as any).contactTelegram?.message as string | undefined,
+            }}
+          />
+        );
+      case 'ДС':
+        return (
+          <DSForm
+            dsType={watch('dsType') || ''}
+            dsDescription={watch('dsDescription') || ''}
+            onChange={(field, value) => setField(field as any, value)}
+            errors={{
+              dsType: (errors as any).dsType?.message as string | undefined,
+              dsDescription: (errors as any).dsDescription?.message as string | undefined,
+            }}
+          />
+        );
+      case 'Запрос на закупку сервисов в Dbrain':
+        return (
+          <ServicePurchaseForm
+            serviceName={watch('serviceName') || ''}
+            serviceAccessDate={watch('serviceAccessDate') || ''}
+            serviceDescription={watch('serviceDescription') || ''}
+            serviceGoals={watch('serviceGoals') || []}
+            goalEconomyDescription={watch('goalEconomyDescription') || ''}
+            goalClientDescription={watch('goalClientDescription') || ''}
+            goalProductDescription={watch('goalProductDescription') || ''}
+            serviceCostCurrency={watch('serviceCostCurrency') || ''}
+            paymentPeriodicity={watch('paymentPeriodicity') || ''}
+            purchaseDuration={watch('purchaseDuration') || ''}
+            serviceOrigin={watch('serviceOrigin') || ''}
+            contactTelegram={watch('contactTelegram') || ''}
+            onChange={(field, value) => setField(field as any, value)}
+            errors={{
+              serviceName: (errors as any).serviceName?.message as string | undefined,
+              serviceAccessDate: (errors as any).serviceAccessDate?.message as string | undefined,
+              serviceDescription: (errors as any).serviceDescription?.message as string | undefined,
+              goalEconomyDescription: (errors as any).goalEconomyDescription?.message as string | undefined,
+              goalClientDescription: (errors as any).goalClientDescription?.message as string | undefined,
+              goalProductDescription: (errors as any).goalProductDescription?.message as string | undefined,
+              serviceCostCurrency: (errors as any).serviceCostCurrency?.message as string | undefined,
+              paymentPeriodicity: (errors as any).paymentPeriodicity?.message as string | undefined,
+              purchaseDuration: (errors as any).purchaseDuration?.message as string | undefined,
+              serviceOrigin: (errors as any).serviceOrigin?.message as string | undefined,
+              contactTelegram: (errors as any).contactTelegram?.message as string | undefined,
             }}
           />
         );
