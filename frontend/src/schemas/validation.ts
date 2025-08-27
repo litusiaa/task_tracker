@@ -63,7 +63,7 @@ export const quotationFormSchema = baseFormSchema.extend({
 
 // New forms
 export const expenseRequestFormSchema = baseFormSchema.extend({
-  approvalType: z.literal('Согласовать: Запрос на расход'),
+  approvalType: z.literal('Запрос на расход'),
   expenseName: z.string().min(1, 'Название расхода обязательно'),
   expenseDescription: z.string().min(1, 'Описание расхода обязательно'),
   expenseAmountCurrency: z.string().min(1, 'Укажите сумму и валюту'),
@@ -80,13 +80,13 @@ export const expenseRequestFormSchema = baseFormSchema.extend({
 });
 
 export const dsFormSchema = baseFormSchema.extend({
-  approvalType: z.literal('Согласовать: ДС'),
+  approvalType: z.literal('ДС'),
   dsType: z.enum(['Продление сроков', 'Изменение условий'], { required_error: 'Выберите вид ДС' }),
   dsDescription: z.string().min(1, 'Опишите выбранный вариант'),
 });
 
 export const servicePurchaseFormSchema = baseFormSchema.extend({
-  approvalType: z.literal('Согласовать: Запрос на закупку сервисов в Dbrain'),
+  approvalType: z.literal('Запрос на закупку сервисов в Dbrain'),
   serviceName: z.string().min(1, 'Название сервиса обязательно'),
   serviceAccessDate: z.string().min(1, 'Укажите дату доступа'),
   serviceDescription: z.string().min(1, 'Опишите сервис'),
@@ -130,7 +130,7 @@ export const formSchema = discriminated.superRefine((data, ctx) => {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Укажите имя сотрудника', path: ['requesterOtherName'] });
   }
   // Service purchase: динамические пояснения по задачам
-  if (data.approvalType === 'Согласовать: Запрос на закупку сервисов в Dbrain') {
+  if (data.approvalType === 'Запрос на закупку сервисов в Dbrain') {
     const goals = (data as any).serviceGoals as string[] | undefined;
     if (goals?.includes('Серьезная экономия текущих ресурсов') && !(data as any).goalEconomyDescription) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Опишите экономию текущих ресурсов', path: ['goalEconomyDescription'] });

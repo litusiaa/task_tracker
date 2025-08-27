@@ -187,7 +187,7 @@ class LinearService {
     lines.push(`• Запрашивающий: ${formData.requester}`);
     lines.push(`• Компания: ${formData.companyName}`);
 
-    if (formData.approvalType === 'Согласовать: Запрос на расход') {
+    if (formData.approvalType === 'Запрос на расход') {
       lines.push(`• Название расхода: ${(formData as any).expenseName}`);
       lines.push(`• Описание расхода: ${(formData as any).expenseDescription}`);
       lines.push(`• Сумма и валюта: ${(formData as any).expenseAmountCurrency}`);
@@ -196,11 +196,11 @@ class LinearService {
       lines.push(`• Пояснение: ${(formData as any).expenseGoalExplanation}`);
       lines.push(`• Контакт: ${(formData as any).contactTelegram}`);
     }
-    if (formData.approvalType === 'Согласовать: ДС') {
+    if (formData.approvalType === 'ДС') {
       lines.push(`• Вид ДС: ${(formData as any).dsType}`);
       lines.push(`• Описание: ${(formData as any).dsDescription}`);
     }
-    if (formData.approvalType === 'Согласовать: Запрос на закупку сервисов в Dbrain') {
+    if (formData.approvalType === 'Запрос на закупку сервисов в Dbrain') {
       lines.push(`• Название сервиса: ${(formData as any).serviceName}`);
       lines.push(`• Когда нужен доступ: ${(formData as any).serviceAccessDate}`);
       lines.push(`• Описание: ${(formData as any).serviceDescription}`);
@@ -301,9 +301,9 @@ class LinearService {
     const chain: string[] = [];
 
     if (
-      formData.approvalType === 'Согласовать: Запрос на расход' ||
-      formData.approvalType === 'Согласовать: ДС' ||
-      formData.approvalType === 'Согласовать: Запрос на закупку сервисов в Dbrain'
+      formData.approvalType === 'Запрос на расход' ||
+      formData.approvalType === 'ДС' ||
+      formData.approvalType === 'Запрос на закупку сервисов в Dbrain'
     ) {
       if (users.katya) chain.push(users.katya);
       return chain;
