@@ -15,10 +15,7 @@ interface BaseFormProps {
     companyName?: string;
     requester?: string;
     approvalType?: string;
-    requesterOtherName?: string;
   };
-  requesterOtherName?: string;
-  onRequesterOtherNameChange?: (value: string) => void;
 }
 
 const requesters: { value: Requester; label: string }[] = [
@@ -75,20 +72,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
         />
       </FormField>
 
-      {requester === 'Сотрудник Dbrain' && (
-        <FormField
-          label="Введите имя сотрудника"
-          error={errors.requesterOtherName}
-          required
-        >
-          <Input
-            value={typeof requesterOtherName === 'string' ? requesterOtherName : ''}
-            onChange={onRequesterOtherNameChange || (() => {})}
-            placeholder="Имя и фамилия"
-            error={!!errors.requesterOtherName}
-          />
-        </FormField>
-      )}
+      {/* Убрано поле ввода имени для "Сотрудник Dbrain" */}
 
       <FormField
         label="Согласовать"

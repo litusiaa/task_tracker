@@ -20,7 +20,6 @@ export interface BaseFormData {
   companyName: string;
   requester: Requester;
   approvalType: ApprovalType;
-  requesterOtherName?: string;
 }
 
 export interface NDAFormData extends BaseFormData {

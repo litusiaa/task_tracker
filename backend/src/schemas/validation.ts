@@ -15,7 +15,7 @@ const baseCore = z.object({
   ], {
     required_error: 'Выберите тип согласования',
   }),
-  requesterOtherName: z.string().optional(),
+  // упрощено: имя сотрудника не требуется
 });
 
 export const baseFormSchema = baseCore;
