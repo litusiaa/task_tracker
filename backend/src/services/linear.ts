@@ -167,9 +167,9 @@ class LinearService {
       case 'NDA':
         action = 'Согласовать NDA';
         break;
-      case 'Согласовать: Запрос на расход':
-      case 'Согласовать: ДС':
-      case 'Согласовать: Запрос на закупку сервисов в Dbrain':
+      case 'Запрос на расход':
+      case 'ДС':
+      case 'Запрос на закупку сервисов в Dbrain':
         action = formData.approvalType;
         break;
       default:

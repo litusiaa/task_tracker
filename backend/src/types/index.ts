@@ -46,7 +46,7 @@ export interface QuotationFormData extends BaseFormData {
 }
 
 export interface ExpenseRequestFormData extends BaseFormData {
-  approvalType: 'Согласовать: Запрос на расход';
+  approvalType: 'Запрос на расход';
   expenseName: string;
   expenseDescription: string;
   expenseAmountCurrency: string;
@@ -62,13 +62,13 @@ export interface ExpenseRequestFormData extends BaseFormData {
 }
 
 export interface DSFormData extends BaseFormData {
-  approvalType: 'Согласовать: ДС';
+  approvalType: 'ДС';
   dsType: 'Продление сроков' | 'Изменение условий';
   dsDescription: string;
 }
 
 export interface ServicePurchaseFormData extends BaseFormData {
-  approvalType: 'Согласовать: Запрос на закупку сервисов в Dbrain';
+  approvalType: 'Запрос на закупку сервисов в Dbrain';
   serviceName: string;
   serviceAccessDate: string;
   serviceDescription: string;
