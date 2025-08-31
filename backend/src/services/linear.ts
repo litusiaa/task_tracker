@@ -28,6 +28,7 @@ class LinearService {
   private projectName?: string;
   private workflowStateId?: string;
   private workflowStateName?: string;
+  private workflowStateIdInProgress?: string;
 
   constructor() {
     this.apiKey = process.env.LINEAR_API_KEY || '';
@@ -37,6 +38,7 @@ class LinearService {
     this.projectName = process.env.LINEAR_PROJECT_NAME || '';
     this.workflowStateName = process.env.LINEAR_WORKFLOW_STATE_NAME || '';
     this.workflowStateId = process.env.LINEAR_WORKFLOW_STATE_ID || '';
+    this.workflowStateIdInProgress = process.env.LINEAR_WORKFLOW_STATE_ID_IN_PROGRESS || '';
     const explicitAssignee = process.env.LINEAR_ASSIGNEE_ID || '';
 
     if (!this.apiKey) {
@@ -103,6 +105,10 @@ class LinearService {
     const nodes = (resp.data as any)?.data?.workflowStates?.nodes as Array<{ id: string; name: string }> | undefined;
     const found = nodes?.find(s => s.name.toLowerCase() === (this.workflowStateName as string).toLowerCase());
     if (found) this.workflowStateId = found.id;
+  }
+
+  private getTargetStateId(): string | undefined {
+    return this.workflowStateIdInProgress || this.workflowStateId;
   }
 
   // Linear priority mapping (API expects 0..4 where 1=Urgent, 2=High, 3=Medium, 4=Low)
@@ -427,7 +433,8 @@ class LinearService {
       assigneeId: initialAssignee,
     };
     if (this.projectId) parentInput.projectId = this.projectId;
-    if (this.workflowStateId) parentInput.stateId = this.workflowStateId;
+    const targetState = this.getTargetStateId();
+    if (targetState) parentInput.stateId = targetState;
     if (uniqSubs.length > 0) parentInput.subscriberIds = uniqSubs;
 
     if (dueDate) parentInput.dueDate = dueDate;
@@ -463,7 +470,7 @@ class LinearService {
         parentId: parent.id,
       };
       if (this.projectId) childInput.projectId = this.projectId;
-      if (this.workflowStateId) childInput.stateId = this.workflowStateId;
+      if (targetState) childInput.stateId = targetState;
       try {
         await this.createIssue(childInput);
       } catch (e) {
