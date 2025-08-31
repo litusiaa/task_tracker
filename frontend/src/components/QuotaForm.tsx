@@ -41,6 +41,10 @@ export const QuotaForm: React.FC = () => {
   const isSimpleType = ['Запрос на расход', 'ДС', 'Запрос на закупку сервисов в Dbrain'].includes(
     (approvalType as any) || ''
   );
+  const companyName = watch('companyName');
+  const requesterVal = watch('requester');
+  const hasBase = Boolean(companyName && requesterVal && approvalType);
+  const canSubmit = isSimpleType ? hasBase : isValid;
 
   const onSubmit = async (data: FormSchema) => {
     setIsSubmitting(true);
@@ -311,8 +315,8 @@ export const QuotaForm: React.FC = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={(isSubmitting || (!isSimpleType && !isValid))}
-            className={`btn-primary ${(isSubmitting || (!isSimpleType && !isValid)) ? 'btn-disabled' : ''}`}
+            disabled={isSubmitting || !canSubmit}
+            className={`btn-primary ${isSubmitting || !canSubmit ? 'btn-disabled' : ''}`}
           >
             {isSubmitting ? 'Отправка...' : `Отправить в ${planner}`}
           </button>
