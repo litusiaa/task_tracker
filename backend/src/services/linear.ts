@@ -312,14 +312,14 @@ class LinearService {
 
   private getUserIds() {
     return {
-      inna: process.env.LINEAR_USER_INNA_ID || '',
-      egor: process.env.LINEAR_USER_EGOR_ID || '',
-      alexH: process.env.LINEAR_USER_ALEXH_ID || '',
-      zhenya: process.env.LINEAR_USER_ZHENYA_ID || '',
-      kostya: process.env.LINEAR_USER_KOSTYA_ID || '',
-      esenya: process.env.LINEAR_USER_ESENYA_ID || '',
-      kira: process.env.LINEAR_USER_KIRA_ID || '',
-      katya: process.env.LINEAR_USER_KATYA_ID || '',
+      inna: (process.env.LINEAR_USER_INNA_ID || '').trim(),
+      egor: (process.env.LINEAR_USER_EGOR_ID || '').trim(),
+      alexH: (process.env.LINEAR_USER_ALEXH_ID || '').trim(),
+      zhenya: (process.env.LINEAR_USER_ZHENYA_ID || '').trim(),
+      kostya: (process.env.LINEAR_USER_KOSTYA_ID || '').trim(),
+      esenya: (process.env.LINEAR_USER_ESENYA_ID || '').trim(),
+      kira: (process.env.LINEAR_USER_KIRA_ID || '').trim(),
+      katya: (process.env.LINEAR_USER_KATYA_ID || '').trim(),
     };
   }
 
