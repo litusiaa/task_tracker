@@ -317,6 +317,15 @@ export const QuotaForm: React.FC = () => {
             type="submit"
             disabled={isSubmitting || !canSubmit}
             className={`btn-primary ${isSubmitting || !canSubmit ? 'btn-disabled' : ''}`}
+            onClick={(e) => {
+              // Явно триггерим submit, чтобы обойти возможные странности браузера
+              e.preventDefault();
+              if (!isSubmitting && canSubmit) {
+                try {
+                  (handleSubmit(onSubmit) as any)();
+                } catch {}
+              }
+            }}
           >
             {isSubmitting ? 'Отправка...' : `Отправить в ${planner}`}
           </button>
