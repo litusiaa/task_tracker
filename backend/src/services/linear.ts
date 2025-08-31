@@ -421,9 +421,16 @@ class LinearService {
     const subscribers: string[] = [];
     const sizingVal = (formData as any).sizing as string | undefined;
     const discountVal = (formData as any).discount as string | undefined;
-    if (sizingVal === 'Да' && users.zhenya) subscribers.push(users.zhenya);
-    if (['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor) {
-      subscribers.push(users.egor);
+    const isSimpleType = (
+      formData.approvalType === 'Запрос на расход' ||
+      formData.approvalType === 'Запрос на закупку сервисов в Dbrain' ||
+      formData.approvalType === 'ДС'
+    );
+    if (!isSimpleType) {
+      if (sizingVal === 'Да' && users.zhenya) subscribers.push(users.zhenya);
+      if (['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor) {
+        subscribers.push(users.egor);
+      }
     }
     const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
     const uniqSubs = Array.from(new Set(subscribers)).filter((v) => !!v && isUuid(v));
@@ -467,19 +474,21 @@ class LinearService {
       }
     }
 
-    // Создаём подзадачи по правилам (сайзинг/скидка)
+    // Создаём подзадачи по правилам (сайзинг/скидка) — только для сложных типов (не для Расход/Закупка/ДС)
     const children: Array<{ title: string; assigneeId: string }> = [];
-    const shouldZhenya = sizingVal === 'Да' && users.zhenya && isUuid(users.zhenya);
-    const shouldEgor = ['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor && isUuid(users.egor);
-    if (shouldZhenya) {
-      const company = (formData as any).companyName || '';
-      children.push({ title: `Сайзинг · ${company}`.trim(), assigneeId: users.zhenya });
-    }
-    if (shouldEgor) {
-      const company = (formData as any).companyName || '';
-      const disc = discountVal || '';
-      const t = ['0–25%', '25–50%', 'Больше 50%'].includes(disc) ? `Согласовать скидку · ${disc} · ${company}` : `Согласовать скидку · ${company}`;
-      children.push({ title: t.trim(), assigneeId: users.egor });
+    if (!isSimpleType) {
+      const shouldZhenya = sizingVal === 'Да' && users.zhenya && isUuid(users.zhenya);
+      const shouldEgor = ['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor && isUuid(users.egor);
+      if (shouldZhenya) {
+        const company = (formData as any).companyName || '';
+        children.push({ title: `Сайзинг · ${company}`.trim(), assigneeId: users.zhenya });
+      }
+      if (shouldEgor) {
+        const company = (formData as any).companyName || '';
+        const disc = discountVal || '';
+        const t = ['0–25%', '25–50%', 'Больше 50%'].includes(disc) ? `Согласовать скидку · ${disc} · ${company}` : `Согласовать скидку · ${company}`;
+        children.push({ title: t.trim(), assigneeId: users.egor });
+      }
     }
     for (const child of children) {
       const childInput: any = {
