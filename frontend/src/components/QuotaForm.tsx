@@ -47,6 +47,8 @@ export const QuotaForm: React.FC = () => {
   const canSubmit = isSimpleType ? hasBase : isValid;
 
   const onSubmit = async (data: FormSchema) => {
+    // Debug trace to verify submission is triggered in browser
+    try { console.log('Submitting form payload', data); } catch {}
     setIsSubmitting(true);
     setSubmitError(null);
 
@@ -320,6 +322,7 @@ export const QuotaForm: React.FC = () => {
             onClick={(e) => {
               // Явно триггерим submit, чтобы обойти возможные странности браузера
               e.preventDefault();
+              try { console.log('Submit button clicked', { isSubmitting, canSubmit, approvalType }); } catch {}
               if (!isSubmitting && canSubmit) {
                 try {
                   (handleSubmit(onSubmit) as any)();
