@@ -42,10 +42,9 @@ export const QuotaForm: React.FC = () => {
   const isSimpleType = ['Запрос на расход', 'ДС', 'Запрос на закупку сервисов в Dbrain'].includes(
     (approvalType as any) || ''
   );
-  const companyName = watch('companyName');
   const requesterVal = watch('requester');
-  const hasBase = Boolean(companyName && requesterVal && approvalType);
-  const canSubmit = isSimpleType ? hasBase : isValid;
+  const hasBaseSimple = Boolean(requesterVal && approvalType);
+  const canSubmit = isSimpleType ? hasBaseSimple : isValid;
 
   const onSubmit = async (data: FormSchema) => {
     // Debug trace to verify submission is triggered in browser
