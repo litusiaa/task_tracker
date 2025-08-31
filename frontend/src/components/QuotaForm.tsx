@@ -325,7 +325,15 @@ export const QuotaForm: React.FC = () => {
               try { console.log('Submit button clicked', { isSubmitting, canSubmit, approvalType }); } catch {}
               if (!isSubmitting && canSubmit) {
                 try {
-                  (handleSubmit(onSubmit) as any)();
+                  if (isSimpleType) {
+                    const payload = getValues() as any;
+                    try { console.log('Submitting form payload (simple)', payload); } catch {}
+                    onSubmit(payload);
+                  } else {
+                    (handleSubmit(onSubmit, (errs: any) => {
+                      try { console.log('Validation failed', errs); } catch {}
+                    }) as any)();
+                  }
                 } catch {}
               }
             }}
