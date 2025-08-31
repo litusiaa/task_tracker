@@ -445,12 +445,19 @@ class LinearService {
     const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
     const uniqSubs = Array.from(new Set(subscribers)).filter((v) => !!v && isUuid(v));
 
-    // Префикс «Участники …» в описании
+    // Префикс «Участники …» в описании: показываем исполнителя и, если есть, исполнителей подзадач
+    const shouldZhenya = !isSimpleType && sizingVal === 'Да' && users.zhenya && isUuid(users.zhenya);
+    const shouldEgor = !isSimpleType && ['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor && isUuid(users.egor);
     const namesById: Record<string, string> = {};
     if (users.inna) namesById[users.inna] = 'Инна';
     if (users.zhenya) namesById[users.zhenya] = 'Евгения Попова';
     if (users.egor) namesById[users.egor] = 'Егор';
-    const participants = [initialAssignee, ...uniqSubs].filter((v): v is string => typeof v === 'string' && v.length > 0);
+    if (users.katya) namesById[users.katya] = 'Катя';
+    const participantIds: string[] = [];
+    if (typeof initialAssignee === 'string' && initialAssignee) participantIds.push(initialAssignee);
+    if (shouldZhenya && users.zhenya) participantIds.push(users.zhenya);
+    if (shouldEgor && users.egor) participantIds.push(users.egor);
+    const participants = Array.from(new Set(participantIds));
     if (participants.length > 0) {
       const line = 'Участники: ' + participants.map(id => `@${namesById[id] || 'user'}`).join(', ');
       description = `${line}\n\n${description}`;
