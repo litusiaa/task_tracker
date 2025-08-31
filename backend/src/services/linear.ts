@@ -111,6 +111,21 @@ class LinearService {
     return this.workflowStateIdInProgress || this.workflowStateId;
   }
 
+  private async ensureInProgressState() {
+    if (this.workflowStateIdInProgress) return;
+    await this.ensureTeam();
+    const query = `query States($teamId: String!) {
+      workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id name } }
+    }`;
+    const resp = await axios.post(this.baseUrl, { query, variables: { teamId: this.teamId } }, { headers: this.getHeaders() });
+    const nodes = (resp.data as any)?.data?.workflowStates?.nodes as Array<{ id: string; name: string }> | undefined;
+    const found = nodes?.find(s => {
+      const n = (s.name || '').toLowerCase();
+      return n === 'in progress' || n === 'в работе' || n.includes('progress');
+    });
+    if (found) this.workflowStateIdInProgress = found.id;
+  }
+
   // Linear priority mapping (API expects 0..4 where 1=Urgent, 2=High, 3=Medium, 4=Low)
   // Urgent (1) только для: NDA(Срочно) и Договор(Срочно)
   private getLinearPriority(formData: FormData): number {
@@ -389,6 +404,7 @@ class LinearService {
   async createTask(formData: FormData): Promise<TodoistTask> { // reuse common shape
     await this.ensureAssignee();
     await this.ensureTeam();
+    await this.ensureInProgressState();
     const title = this.getTaskTitle(formData);
     let description = this.getTaskDescription(formData);
     const priority = this.getLinearPriority(formData);
@@ -457,10 +473,14 @@ class LinearService {
     const shouldZhenya = sizingVal === 'Да' && users.zhenya && isUuid(users.zhenya);
     const shouldEgor = ['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor && isUuid(users.egor);
     if (shouldZhenya) {
-      children.push({ title: '[Сайзинг] Оценка трудозатрат', assigneeId: users.zhenya });
+      const company = (formData as any).companyName || '';
+      children.push({ title: `Сайзинг · ${company}`.trim(), assigneeId: users.zhenya });
     }
     if (shouldEgor) {
-      children.push({ title: '[Скидка] Проверка и апрув', assigneeId: users.egor });
+      const company = (formData as any).companyName || '';
+      const disc = discountVal || '';
+      const t = ['0–25%', '25–50%', 'Больше 50%'].includes(disc) ? `Согласовать скидку · ${disc} · ${company}` : `Согласовать скидку · ${company}`;
+      children.push({ title: t.trim(), assigneeId: users.egor });
     }
     for (const child of children) {
       const childInput: any = {
