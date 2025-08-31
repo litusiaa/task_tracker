@@ -300,9 +300,13 @@ class LinearService {
     const users = this.getUserIds();
     const chain: string[] = [];
 
+    // Новые типы: ДС → Инна; Расход/Закупка сервисов → Катя
+    if (formData.approvalType === 'ДС') {
+      if (users.inna) chain.push(users.inna);
+      return chain;
+    }
     if (
       formData.approvalType === 'Запрос на расход' ||
-      formData.approvalType === 'ДС' ||
       formData.approvalType === 'Запрос на закупку сервисов в Dbrain'
     ) {
       if (users.katya) chain.push(users.katya);
