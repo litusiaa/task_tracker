@@ -445,7 +445,31 @@ class LinearService {
       }
     }
 
-    // По просьбе: не создаём подзадачи и параллельные шаги. Оставляем только главную задачу.
+    // Создаём подзадачи по правилам (сайзинг/скидка)
+    const children: Array<{ title: string; assigneeId: string }> = [];
+    const shouldZhenya = sizingVal === 'Да' && users.zhenya && isUuid(users.zhenya);
+    const shouldEgor = ['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor && isUuid(users.egor);
+    if (shouldZhenya) {
+      children.push({ title: '[Сайзинг] Оценка трудозатрат', assigneeId: users.zhenya });
+    }
+    if (shouldEgor) {
+      children.push({ title: '[Скидка] Проверка и апрув', assigneeId: users.egor });
+    }
+    for (const child of children) {
+      const childInput: any = {
+        teamId: this.teamId!,
+        title: child.title,
+        assigneeId: child.assigneeId,
+        parentId: parent.id,
+      };
+      if (this.projectId) childInput.projectId = this.projectId;
+      if (this.workflowStateId) childInput.stateId = this.workflowStateId;
+      try {
+        await this.createIssue(childInput);
+      } catch (e) {
+        // не блокируем родителя из‑за ошибки саб‑задачи
+      }
+    }
 
     return { id: parent.id, url: parent.url, title: parent.title, description: parent.description || '' };
   }
