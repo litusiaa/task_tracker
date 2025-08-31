@@ -43,20 +43,24 @@ export const BaseForm: React.FC<BaseFormProps> = ({
   onApprovalTypeChange,
   errors,
 }) => {
+  const hideCompanyFor: ApprovalType[] = ['Квота для КП', 'Договор', 'NDA'];
+  const showCompany = approvalType ? !hideCompanyFor.includes(approvalType as ApprovalType) : true;
   return (
     <div className="space-y-4">
-      <FormField
-        label="Название компании"
-        error={errors.companyName}
-        required
-      >
-        <Input
-          value={companyName}
-          onChange={onCompanyNameChange}
-          placeholder="Введите название компании"
-          error={!!errors.companyName}
-        />
-      </FormField>
+      {showCompany && (
+        <FormField
+          label="Название компании"
+          error={errors.companyName}
+          required
+        >
+          <Input
+            value={companyName}
+            onChange={onCompanyNameChange}
+            placeholder="Введите название компании"
+            error={!!errors.companyName}
+          />
+        </FormField>
+      )}
 
       <FormField
         label="Кто запрашивает квоту?"
