@@ -40,7 +40,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
   return (
     <div className="space-y-4">
       <FormField
-        label="Кто запрашивает квоту?"
+        label="Кто запрашивает?"
         error={errors.requester}
         required
       >
