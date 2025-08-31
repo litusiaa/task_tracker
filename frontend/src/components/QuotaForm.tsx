@@ -317,18 +317,15 @@ export const QuotaForm: React.FC = () => {
         {/* Кнопка отправки */}
         <div className="flex justify-end">
           <button
-            type="submit"
+            type="button"
             disabled={isSubmitting || !canSubmit}
             className={`btn-primary ${isSubmitting || !canSubmit ? 'btn-disabled' : ''}`}
-            onClick={(e) => {
-              // Явно триггерим submit, чтобы обойти возможные странности браузера
-              e.preventDefault();
+            onClick={() => {
+              // Явно вызываем RHF submit; кнопка не сабмитит форму напрямую
               try { console.log('Submit button clicked', { isSubmitting, canSubmit, approvalType }); } catch {}
               if (!isSubmitting && canSubmit) {
                 try {
-                  const current = getValues();
-                  // Вызов RHF submit с текущим значением
-                  (handleSubmit(onSubmit) as any)(e);
+                  (handleSubmit(onSubmit) as any)();
                 } catch {}
               }
             }}
