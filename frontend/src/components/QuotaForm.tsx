@@ -23,6 +23,7 @@ export const QuotaForm: React.FC = () => {
     handleSubmit,
     watch,
     setValue,
+    getValues,
     formState: { errors, isValid },
   } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -325,7 +326,9 @@ export const QuotaForm: React.FC = () => {
               try { console.log('Submit button clicked', { isSubmitting, canSubmit, approvalType }); } catch {}
               if (!isSubmitting && canSubmit) {
                 try {
-                  (handleSubmit(onSubmit) as any)();
+                  const current = getValues();
+                  // Вызов RHF submit с текущим значением
+                  (handleSubmit(onSubmit) as any)(e);
                 } catch {}
               }
             }}
