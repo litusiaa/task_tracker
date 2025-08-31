@@ -384,22 +384,38 @@ class LinearService {
     await this.ensureAssignee();
     await this.ensureTeam();
     const title = this.getTaskTitle(formData);
-    const description = this.getTaskDescription(formData);
+    let description = this.getTaskDescription(formData);
     const priority = this.getLinearPriority(formData);
     const dueDate = this.computeDueDate(formData);
     await this.ensureProject();
     await this.ensureWorkflowState();
 
-    const chain = this.computeAssigneeChain(formData);
-    // Начальный исполнитель остаётся по правилам (Инна/Женя/Егор и т.д.)
-    const initialAssignee = chain[0] || this.assigneeId;
-    // Инициатор (запрашивающий) — добавляем в подписчики
     const users = this.getUserIds();
-    const requester = (formData as any).requester as string;
-    let requesterId = '';
-    if (requester === 'Костя Поляков') requesterId = users.kostya;
-    if (requester === 'Есения Ли') requesterId = users.esenya;
-    if (requester === 'Кирилл Стасюкевич') requesterId = users.kira;
+    const chain = this.computeAssigneeChain(formData);
+    // Основной исполнитель по бизнес‑правилу: Инна
+    const initialAssignee = users.inna || chain[0] || this.assigneeId;
+
+    // Матрица подписчиков (соисполнители): Женя по сайзингу, Егор по скидке
+    const subscribers: string[] = [];
+    const sizingVal = (formData as any).sizing as string | undefined;
+    const discountVal = (formData as any).discount as string | undefined;
+    if (sizingVal === 'Да' && users.zhenya) subscribers.push(users.zhenya);
+    if (['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor) {
+      subscribers.push(users.egor);
+    }
+    const uniqSubs = Array.from(new Set(subscribers)).filter(Boolean);
+
+    // Префикс «Участники …» в описании
+    const namesById: Record<string, string> = {
+      [users.inna]: 'Инна',
+      [users.zhenya]: 'Евгения Попова',
+      [users.egor]: 'Егор',
+    } as Record<string, string>;
+    const participants = [initialAssignee, ...uniqSubs].filter(Boolean);
+    if (participants.length > 0) {
+      const line = 'Участники: ' + participants.map(id => `@${namesById[id] || 'user'}`).join(', ');
+      description = `${line}\n\n${description}`;
+    }
 
     // Build input conditionally to avoid sending empty strings to Linear (causes UUID errors)
     const parentInput: any = {
@@ -411,7 +427,7 @@ class LinearService {
     };
     if (this.projectId) parentInput.projectId = this.projectId;
     if (this.workflowStateId) parentInput.stateId = this.workflowStateId;
-    if (requesterId) parentInput.subscriberIds = [requesterId];
+    if (uniqSubs.length > 0) parentInput.subscriberIds = uniqSubs;
 
     if (dueDate) parentInput.dueDate = dueDate;
     const parent = await this.createIssue(parentInput);
