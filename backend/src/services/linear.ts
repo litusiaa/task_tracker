@@ -429,12 +429,11 @@ class LinearService {
     const uniqSubs = Array.from(new Set(subscribers)).filter((v) => !!v && isUuid(v));
 
     // Префикс «Участники …» в описании
-    const namesById: Record<string, string> = {
-      [users.inna]: 'Инна',
-      [users.zhenya]: 'Евгения Попова',
-      [users.egor]: 'Егор',
-    } as Record<string, string>;
-    const participants = [initialAssignee, ...uniqSubs].filter(Boolean);
+    const namesById: Record<string, string> = {};
+    if (users.inna) namesById[users.inna] = 'Инна';
+    if (users.zhenya) namesById[users.zhenya] = 'Евгения Попова';
+    if (users.egor) namesById[users.egor] = 'Егор';
+    const participants = [initialAssignee, ...uniqSubs].filter((v): v is string => typeof v === 'string' && v.length > 0);
     if (participants.length > 0) {
       const line = 'Участники: ' + participants.map(id => `@${namesById[id] || 'user'}`).join(', ');
       description = `${line}\n\n${description}`;
@@ -491,10 +490,29 @@ class LinearService {
       };
       if (this.projectId) childInput.projectId = this.projectId;
       if (targetState) childInput.stateId = targetState;
+
+      const childIsEgor = child.assigneeId === users.egor;
       try {
         await this.createIssue(childInput);
-      } catch (e) {
-        // не блокируем родителя из‑за ошибки саб‑задачи
+      } catch (e1: any) {
+        // Fallback 1: пробуем без assignee, но с подписчиком (если это задача для Егора)
+        const childInputNoAssignee: any = { ...childInput };
+        delete childInputNoAssignee.assigneeId;
+        if (childIsEgor && users.egor && isUuid(users.egor)) {
+          childInputNoAssignee.subscriberIds = [users.egor];
+        }
+        try {
+          await this.createIssue(childInputNoAssignee);
+        } catch (e2: any) {
+          // Fallback 2: создаём без подписчиков вообще
+          const childInputPlain: any = { ...childInputNoAssignee };
+          delete childInputPlain.subscriberIds;
+          try {
+            await this.createIssue(childInputPlain);
+          } catch (e3) {
+            // не блокируем родителя из‑за ошибки саб‑задачи
+          }
+        }
       }
     }
 
