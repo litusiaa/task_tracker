@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 const baseCore = z.object({
-  companyName: z.string().min(1, 'Название компании обязательно для заполнения'),
   requester: z.enum(['Костя Поляков', 'Кирилл Стасюкевич', 'Есения Ли', 'Сотрудник Dbrain'], {
     required_error: 'Выберите, кто запрашивает квоту',
   }),
@@ -22,6 +21,7 @@ export const baseFormSchema = baseCore;
 
 export const ndaFormSchema = baseCore.extend({
   approvalType: z.literal('NDA'),
+  companyName: z.string().min(1, 'Название компании обязательно для заполнения'),
   companyDetails: z.string().min(1, 'Реквизиты компании обязательны для заполнения'),
   priority: z.enum(['Срочно', 'Средний'], {
     required_error: 'Выберите приоритет',
@@ -30,6 +30,7 @@ export const ndaFormSchema = baseCore.extend({
 
 export const contractFormSchema = baseCore.extend({
   approvalType: z.literal('Договор'),
+  companyName: z.string().min(1, 'Название компании обязательно для заполнения'),
   quotaFileUrl: z.string().url('Введите корректную ссылку на файл квоты'),
   sizing: z.enum(['Да', 'Нет'], {
     required_error: 'Выберите, требуется ли сайзинг',
@@ -41,6 +42,7 @@ export const contractFormSchema = baseCore.extend({
 
 export const quotationFormSchema = baseCore.extend({
   approvalType: z.literal('Квота для КП'),
+  companyName: z.string().min(1, 'Название компании обязательно для заполнения'),
   quotaFileUrl: z.string().url('Введите корректную ссылку на файл квоты'),
   discount: z.enum(['0%', '0–25%', '25–50%', 'Больше 50%'], {
     required_error: 'Выберите размер скидки',
