@@ -259,11 +259,18 @@ class LinearService {
       lines.push(`• Срок согласования: ${(formData as any).approvalDeadline}`);
     }
 
-    // Примечание: дополнительные ответственные добавим в конец описания
-    const responsibles = this.getResponsibles(formData);
-    if (responsibles.length > 1) {
-      lines.push('');
-      lines.push(`Уведомить: ${responsibles.filter((r) => r !== rulesConfig.responsibles.default).join(', ')}`);
+    // Примечание: дополнительные ответственные (НЕ для простых типов)
+    const isSimple = (
+      formData.approvalType === 'Запрос на расход' ||
+      formData.approvalType === 'Запрос на закупку сервисов в Dbrain' ||
+      formData.approvalType === 'ДС'
+    );
+    if (!isSimple) {
+      const responsibles = this.getResponsibles(formData);
+      if (responsibles.length > 1) {
+        lines.push('');
+        lines.push(`Уведомить: ${responsibles.filter((r) => r !== rulesConfig.responsibles.default).join(', ')}`);
+      }
     }
 
     return lines.join('\n');
@@ -414,18 +421,21 @@ class LinearService {
 
     const users = this.getUserIds();
     const chain = this.computeAssigneeChain(formData);
-    // Основной исполнитель по бизнес‑правилу: Инна
-    const initialAssignee = users.inna || chain[0] || this.assigneeId;
-
-    // Матрица подписчиков (соисполнители): Женя по сайзингу, Егор по скидке
-    const subscribers: string[] = [];
-    const sizingVal = (formData as any).sizing as string | undefined;
-    const discountVal = (formData as any).discount as string | undefined;
     const isSimpleType = (
       formData.approvalType === 'Запрос на расход' ||
       formData.approvalType === 'Запрос на закупку сервисов в Dbrain' ||
       formData.approvalType === 'ДС'
     );
+    // Основной исполнитель: для простых типов — Катя, иначе Инна (или цепочка)
+    const initialAssignee = isSimpleType
+      ? (users.katya || this.assigneeId)
+      : (users.inna || chain[0] || this.assigneeId);
+
+    // Матрица подписчиков (соисполнители): Женя по сайзингу, Егор по скидке
+    const subscribers: string[] = [];
+    const sizingVal = (formData as any).sizing as string | undefined;
+    const discountVal = (formData as any).discount as string | undefined;
+    // reuse isSimpleType computed above
     if (!isSimpleType) {
       if (sizingVal === 'Да' && users.zhenya) subscribers.push(users.zhenya);
       if (['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor) {
