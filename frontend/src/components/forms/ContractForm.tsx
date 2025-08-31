@@ -4,13 +4,16 @@ import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 
 interface ContractFormProps {
+  companyName?: string;
   quotaFileUrl: string;
   sizing: string;
   priority: string;
+  onCompanyNameChange?: (value: string) => void;
   onQuotaFileUrlChange: (value: string) => void;
   onSizingChange: (value: string) => void;
   onPriorityChange: (value: string) => void;
   errors: {
+    companyName?: string;
     quotaFileUrl?: string;
     sizing?: string;
     priority?: string;
@@ -29,9 +32,11 @@ const priorities: { value: string; label: string }[] = [
 ];
 
 export const ContractForm: React.FC<ContractFormProps> = ({
+  companyName,
   quotaFileUrl,
   sizing,
   priority,
+  onCompanyNameChange,
   onQuotaFileUrlChange,
   onSizingChange,
   onPriorityChange,
@@ -39,6 +44,14 @@ export const ContractForm: React.FC<ContractFormProps> = ({
 }) => {
   return (
     <div className="space-y-4">
+      <FormField label="Название компании" error={errors.companyName} required>
+        <Input
+          value={companyName || ''}
+          onChange={(v) => onCompanyNameChange && onCompanyNameChange(v)}
+          placeholder="Введите название компании"
+          error={!!errors.companyName}
+        />
+      </FormField>
       <FormField
         label="Ссылка на файл квоты"
         error={errors.quotaFileUrl}

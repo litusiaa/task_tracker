@@ -1,18 +1,14 @@
 import React from 'react';
 import { FormField } from '../ui/FormField';
-import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Requester, ApprovalType } from '../../types';
 
 interface BaseFormProps {
-  companyName: string;
   requester: string;
   approvalType: string;
-  onCompanyNameChange: (value: string) => void;
   onRequesterChange: (value: string) => void;
   onApprovalTypeChange: (value: string) => void;
   errors: {
-    companyName?: string;
     requester?: string;
     approvalType?: string;
   };
@@ -35,29 +31,14 @@ const approvalTypes: { value: ApprovalType; label: string }[] = [
 ];
 
 export const BaseForm: React.FC<BaseFormProps> = ({
-  companyName,
   requester,
   approvalType,
-  onCompanyNameChange,
   onRequesterChange,
   onApprovalTypeChange,
   errors,
 }) => {
   return (
     <div className="space-y-4">
-      <FormField
-        label="Название компании"
-        error={errors.companyName}
-        required
-      >
-        <Input
-          value={companyName}
-          onChange={onCompanyNameChange}
-          placeholder="Введите название компании"
-          error={!!errors.companyName}
-        />
-      </FormField>
-
       <FormField
         label="Кто запрашивает квоту?"
         error={errors.requester}

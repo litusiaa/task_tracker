@@ -3,15 +3,19 @@ import { FormField } from '../ui/FormField';
 import { Textarea } from '../ui/Textarea';
 import { FileUpload } from '../ui/FileUpload';
 import { Select } from '../ui/Select';
+import { Input } from '../ui/Input';
 
 interface NDAFormProps {
+  companyName?: string;
   companyDetails: string;
   companyFile?: File;
   priority: string;
+  onCompanyNameChange?: (value: string) => void;
   onCompanyDetailsChange: (value: string) => void;
   onCompanyFileChange: (file: File) => void;
   onPriorityChange: (value: string) => void;
   errors: {
+    companyName?: string;
     companyDetails?: string;
     priority?: string;
   };
@@ -23,9 +27,11 @@ const priorities: { value: string; label: string }[] = [
 ];
 
 export const NDAForm: React.FC<NDAFormProps> = ({
+  companyName,
   companyDetails,
   companyFile,
   priority,
+  onCompanyNameChange,
   onCompanyDetailsChange,
   onCompanyFileChange,
   onPriorityChange,
@@ -33,6 +39,14 @@ export const NDAForm: React.FC<NDAFormProps> = ({
 }) => {
   return (
     <div className="space-y-4">
+      <FormField label="Название компании" error={errors.companyName} required>
+        <Input
+          value={companyName || ''}
+          onChange={(v) => onCompanyNameChange && onCompanyNameChange(v)}
+          placeholder="Введите название компании"
+          error={!!errors.companyName}
+        />
+      </FormField>
       <FormField
         label="Реквизиты компании"
         error={errors.companyDetails}

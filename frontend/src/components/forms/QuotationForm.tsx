@@ -4,17 +4,20 @@ import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 
 interface QuotationFormProps {
+  companyName?: string;
   quotaFileUrl: string;
   discount: string;
   quotationType: string;
   sizing: string;
   approvalDeadline: string;
+  onCompanyNameChange?: (value: string) => void;
   onQuotaFileUrlChange: (value: string) => void;
   onDiscountChange: (value: string) => void;
   onQuotationTypeChange: (value: string) => void;
   onSizingChange: (value: string) => void;
   onApprovalDeadlineChange: (value: string) => void;
   errors: {
+    companyName?: string;
     quotaFileUrl?: string;
     discount?: string;
     quotationType?: string;
@@ -41,11 +44,13 @@ const sizingOptions: { value: string; label: string }[] = [
 ];
 
 export const QuotationForm: React.FC<QuotationFormProps> = ({
+  companyName,
   quotaFileUrl,
   discount,
   quotationType,
   sizing,
   approvalDeadline,
+  onCompanyNameChange,
   onQuotaFileUrlChange,
   onDiscountChange,
   onQuotationTypeChange,
@@ -55,6 +60,14 @@ export const QuotationForm: React.FC<QuotationFormProps> = ({
 }) => {
   return (
     <div className="space-y-4">
+      <FormField label="Название компании" error={errors.companyName} required>
+        <Input
+          value={companyName || ''}
+          onChange={(v) => onCompanyNameChange && onCompanyNameChange(v)}
+          placeholder="Введите название компании"
+          error={!!errors.companyName}
+        />
+      </FormField>
       <FormField
         label="Ссылка на файл квоты"
         error={errors.quotaFileUrl}

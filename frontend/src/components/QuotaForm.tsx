@@ -75,13 +75,16 @@ export const QuotaForm: React.FC = () => {
       case 'NDA':
         return (
           <NDAForm
+            companyName={watch('companyName') || ''}
             companyDetails={watch('companyDetails') || ''}
             companyFile={watch('companyFile')}
             priority={watch('priority') || ''}
+            onCompanyNameChange={(v) => setField('companyName', v)}
             onCompanyDetailsChange={(value) => setField('companyDetails', value)}
             onCompanyFileChange={(file) => setField('companyFile', file)}
             onPriorityChange={(value) => setField('priority', value as 'Срочно' | 'Средний')}
             errors={{
+              companyName: (errors as any).companyName?.message as string | undefined,
               companyDetails: (errors as any).companyDetails?.message as string | undefined,
               priority: (errors as any).priority?.message as string | undefined,
             }}
@@ -90,13 +93,16 @@ export const QuotaForm: React.FC = () => {
       case 'Договор':
         return (
           <ContractForm
+            companyName={watch('companyName') || ''}
             quotaFileUrl={watch('quotaFileUrl') || ''}
             sizing={watch('sizing') || ''}
             priority={watch('priority') || ''}
+            onCompanyNameChange={(v) => setField('companyName', v)}
             onQuotaFileUrlChange={(value) => setField('quotaFileUrl', value)}
             onSizingChange={(value) => setField('sizing', value as 'Да' | 'Нет')}
             onPriorityChange={(value) => setField('priority', value as 'Срочно' | 'Средний' | 'Не срочно')}
             errors={{
+              companyName: (errors as any).companyName?.message as string | undefined,
               quotaFileUrl: (errors as any).quotaFileUrl?.message as string | undefined,
               sizing: (errors as any).sizing?.message as string | undefined,
               priority: (errors as any).priority?.message as string | undefined,
@@ -106,17 +112,20 @@ export const QuotaForm: React.FC = () => {
       case 'Квота для КП':
         return (
           <QuotationForm
+            companyName={watch('companyName') || ''}
             quotaFileUrl={watch('quotaFileUrl') || ''}
             discount={watch('discount') || ''}
             quotationType={watch('quotationType') || ''}
             sizing={watch('sizing') || ''}
             approvalDeadline={watch('approvalDeadline') || ''}
+            onCompanyNameChange={(v) => setField('companyName', v)}
             onQuotaFileUrlChange={(value) => setField('quotaFileUrl', value)}
             onDiscountChange={(value) => setField('discount', value as '0%' | '0–25%' | '25–50%' | 'Больше 50%')}
             onQuotationTypeChange={(value) => setField('quotationType', value as 'КП' | 'Договор')}
             onSizingChange={(value) => setField('sizing', value as 'Да' | 'Нет')}
             onApprovalDeadlineChange={(value) => setField('approvalDeadline', value)}
             errors={{
+              companyName: (errors as any).companyName?.message as string | undefined,
               quotaFileUrl: (errors as any).quotaFileUrl?.message as string | undefined,
               discount: (errors as any).discount?.message as string | undefined,
               quotationType: (errors as any).quotationType?.message as string | undefined,
