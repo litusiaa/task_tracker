@@ -167,11 +167,17 @@ class LinearService {
       case 'NDA':
         action = 'Согласовать NDA';
         break;
-      case 'Запрос на расход':
-      case 'ДС':
-      case 'Запрос на закупку сервисов в Dbrain':
-        action = formData.approvalType;
-        break;
+      case 'Запрос на расход': {
+        const name = (formData as any).expenseName || '';
+        return name ? `Запрос на расход · ${name}` : 'Запрос на расход';
+      }
+      case 'ДС': {
+        return `ДС · ${formData.companyName}`;
+      }
+      case 'Запрос на закупку сервисов в Dbrain': {
+        const svc = (formData as any).serviceName || '';
+        return svc ? `Запрос на закупку сервисов Dbrain · ${svc}` : 'Запрос на закупку сервисов Dbrain';
+      }
       default:
         action = 'Согласовать';
     }
