@@ -403,7 +403,8 @@ class LinearService {
     if (['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor) {
       subscribers.push(users.egor);
     }
-    const uniqSubs = Array.from(new Set(subscribers)).filter(Boolean);
+    const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+    const uniqSubs = Array.from(new Set(subscribers)).filter((v) => !!v && isUuid(v));
 
     // Префикс «Участники …» в описании
     const namesById: Record<string, string> = {
@@ -430,7 +431,19 @@ class LinearService {
     if (uniqSubs.length > 0) parentInput.subscriberIds = uniqSubs;
 
     if (dueDate) parentInput.dueDate = dueDate;
-    const parent = await this.createIssue(parentInput);
+    let parent;
+    try {
+      parent = await this.createIssue(parentInput);
+    } catch (e: any) {
+      const msg = (e?.message || '').toString();
+      if (msg.includes('subscriberIds')) {
+        // Повторяем без подписчиков, если хотя бы один ID неподтверждён в Linear
+        delete parentInput.subscriberIds;
+        parent = await this.createIssue(parentInput);
+      } else {
+        throw e;
+      }
+    }
 
     // По просьбе: не создаём подзадачи и параллельные шаги. Оставляем только главную задачу.
 
