@@ -108,7 +108,8 @@ class LinearService {
   }
 
   private getTargetStateId(): string | undefined {
-    return this.workflowStateIdInProgress || this.workflowStateId;
+    // Prefer explicitly configured state (expected to be "Todo")
+    return this.workflowStateId || undefined;
   }
 
   private async ensureInProgressState() {
@@ -411,7 +412,7 @@ class LinearService {
   async createTask(formData: FormData): Promise<TodoistTask> { // reuse common shape
     await this.ensureAssignee();
     await this.ensureTeam();
-    await this.ensureInProgressState();
+    // No longer auto-forcing In Progress; use configured Todo state via ensureWorkflowState
     const title = this.getTaskTitle(formData);
     let description = this.getTaskDescription(formData);
     const priority = this.getLinearPriority(formData);
