@@ -96,15 +96,30 @@ class LinearService {
 
   private async ensureWorkflowState() {
     if (this.workflowStateId) return;
-    if (!this.workflowStateName) return; // optional
     await this.ensureTeam();
     const query = `query States($teamId: String!) {
       workflowStates(filter: { team: { id: { eq: $teamId } } }) { nodes { id name } }
     }`;
     const resp = await axios.post(this.baseUrl, { query, variables: { teamId: this.teamId } }, { headers: this.getHeaders() });
     const nodes = (resp.data as any)?.data?.workflowStates?.nodes as Array<{ id: string; name: string }> | undefined;
-    const found = nodes?.find(s => s.name.toLowerCase() === (this.workflowStateName as string).toLowerCase());
-    if (found) this.workflowStateId = found.id;
+    if (!nodes || nodes.length === 0) return;
+
+    if (this.workflowStateName) {
+      const byName = nodes.find(s => (s.name || '').toLowerCase() === (this.workflowStateName as string).toLowerCase());
+      if (byName) {
+        this.workflowStateId = byName.id;
+        return;
+      }
+    }
+
+    // Auto-pick Todo-like state by common names if not explicitly configured
+    const lowerMatches = ['todo', 'to do', 'to-do'];
+    const ruMatches = ['сделать', 'к выполнению', 'в планах'];
+    const foundTodo = nodes.find(s => {
+      const n = (s.name || '').toLowerCase();
+      return lowerMatches.includes(n) || ruMatches.includes(n) || n.includes('todo');
+    });
+    if (foundTodo) this.workflowStateId = foundTodo.id;
   }
 
   private getTargetStateId(): string | undefined {
