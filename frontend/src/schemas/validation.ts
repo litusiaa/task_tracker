@@ -97,10 +97,7 @@ export const formSchema = discriminated.superRefine((data, ctx) => {
       });
     }
   }
-  // Requester: имя для «Сотрудник Dbrain»
-  if ((data as any).requester === 'Сотрудник Dbrain' && !((data as any).requesterOtherName && (data as any).requesterOtherName.trim().length > 0)) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Укажите имя сотрудника', path: ['requesterOtherName'] });
-  }
+  // Разрешаем выбирать «Сотрудник Dbrain» без дополнительного имени
   // Доп. проверки для новых типов временно отключены, пока не добавим UI
 });
 
