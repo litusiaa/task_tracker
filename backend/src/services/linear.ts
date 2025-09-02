@@ -436,15 +436,18 @@ class LinearService {
 
     const users = this.getUserIds();
     const chain = this.computeAssigneeChain(formData);
-    const isSimpleType = (
+    const isSimpleExpense = (
       formData.approvalType === 'Запрос на расход' ||
-      formData.approvalType === 'Запрос на закупку сервисов в Dbrain' ||
-      formData.approvalType === 'ДС'
+      formData.approvalType === 'Запрос на закупку сервисов в Dbrain'
     );
-    // Основной исполнитель: для простых типов — Катя, иначе Инна (или цепочка)
-    const initialAssignee = isSimpleType
-      ? (users.katya || this.assigneeId)
-      : (users.inna || chain[0] || this.assigneeId);
+    const isSimpleDS = formData.approvalType === 'ДС';
+    const isSimpleType = isSimpleExpense || isSimpleDS;
+    // Основной исполнитель: Расход/Закупка → Катя; ДС → Инна; иные → Инна/цепочка
+    const initialAssignee = isSimpleDS
+      ? (users.inna || this.assigneeId)
+      : isSimpleExpense
+        ? (users.katya || this.assigneeId)
+        : (users.inna || chain[0] || this.assigneeId);
 
     // Матрица подписчиков (соисполнители): Женя по сайзингу, Егор по скидке
     const subscribers: string[] = [];
