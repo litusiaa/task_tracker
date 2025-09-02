@@ -8,6 +8,7 @@ export const baseFormSchema = z.object({
   approvalType: z.enum(['Квота для КП', 'Договор', 'NDA'], {
     required_error: 'Выберите тип согласования',
   }),
+  requesterOtherName: z.string().optional(),
   // упрощено: больше не требуется ввода имени сотрудника
 });
 

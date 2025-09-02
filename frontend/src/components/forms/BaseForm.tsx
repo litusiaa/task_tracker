@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormField } from '../ui/FormField';
 import { Select } from '../ui/Select';
+import { Input } from '../ui/Input';
 import { Requester, ApprovalType } from '../../types';
 
 interface BaseFormProps {
@@ -8,6 +9,8 @@ interface BaseFormProps {
   approvalType: string;
   onRequesterChange: (value: string) => void;
   onApprovalTypeChange: (value: string) => void;
+  requesterOtherName?: string;
+  onRequesterOtherNameChange?: (value: string) => void;
   errors: {
     requester?: string;
     approvalType?: string;
@@ -35,6 +38,8 @@ export const BaseForm: React.FC<BaseFormProps> = ({
   approvalType,
   onRequesterChange,
   onApprovalTypeChange,
+  requesterOtherName = '',
+  onRequesterOtherNameChange,
   errors,
 }) => {
   return (
@@ -53,7 +58,16 @@ export const BaseForm: React.FC<BaseFormProps> = ({
         />
       </FormField>
 
-      {/* Убрано поле ввода имени для "Сотрудник Dbrain" */}
+      {/* Поле ФИО сотрудника (опционально), показываем только для "Сотрудник Dbrain" */}
+      {requester === 'Сотрудник Dbrain' && (
+        <FormField label="ФИО сотрудника">
+          <Input
+            value={requesterOtherName || ''}
+            onChange={(v) => onRequesterOtherNameChange && onRequesterOtherNameChange(v)}
+            placeholder="Введите ФИО (необязательно)"
+          />
+        </FormField>
+      )}
 
       <FormField
         label="Согласовать"

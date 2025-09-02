@@ -291,6 +291,8 @@ export const QuotaForm: React.FC = () => {
             onCompanyNameChange={(value) => setField('companyName', value)}
             onRequesterChange={(value) => setField('requester', value as any)}
             onApprovalTypeChange={(value) => setField('approvalType', value as any)}
+            requesterOtherName={watch('requesterOtherName') || ''}
+            onRequesterOtherNameChange={(value) => setField('requesterOtherName', value)}
             errors={{
               companyName: errors.companyName?.message as string | undefined,
               requester: errors.requester?.message as string | undefined,
