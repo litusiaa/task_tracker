@@ -56,7 +56,7 @@ export const NDAForm: React.FC<NDAFormProps> = ({
           <Textarea
             value={companyDetails}
             onChange={onCompanyDetailsChange}
-            placeholder="Введите реквизиты компании: ИНН, юр. адрес или ссылка на реквизиты"
+            placeholder="Введите реквизиты компании: ИНН, юр. адрес и тд"
             error={!!errors.companyDetails}
           />
           <div className="text-sm text-gray-600">или</div>
