@@ -59,6 +59,7 @@ export const NDAForm: React.FC<NDAFormProps> = ({
             placeholder="Введите реквизиты компании"
             error={!!errors.companyDetails}
           />
+          <p className="mt-1 text-sm text-gray-500">ИНН, юр. адрес или ссылка на реквизиты</p>
           <div className="text-sm text-gray-600">или</div>
           <FileUpload
             onFileSelect={onCompanyFileChange}
