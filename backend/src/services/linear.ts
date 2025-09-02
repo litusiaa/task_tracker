@@ -227,6 +227,10 @@ class LinearService {
     lines.push(`Информация:`);
     lines.push(`• Тип согласования: ${formData.approvalType}`);
     lines.push(`• Запрашивающий: ${formData.requester}`);
+    const fio = (formData as any).requesterOtherName as string | undefined;
+    if (formData.requester === 'Сотрудник Dbrain' && fio && fio.trim().length > 0) {
+      lines.push(`• ФИО сотрудника: ${fio.trim()}`);
+    }
     lines.push(`• Компания: ${formData.companyName}`);
 
     if (formData.approvalType === 'Запрос на расход') {
