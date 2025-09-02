@@ -184,43 +184,42 @@ class LinearService {
   }
 
   private getTaskTitle(formData: FormData): string {
-    const toReadablePriority = (): string => {
-      const p = (formData as any).priority as string | undefined;
-      if (!p) return '';
-      if (p === 'Срочно') return 'срочно';
-      if (p === 'Средний') return 'средне';
-      if (p === 'Не срочно') return 'не срочно';
-      return '';
-    };
+    const company = (formData as any).companyName || '';
+    const priorityLabel = ((formData as any).priority as string) || '';
 
-    let action = '';
     switch (formData.approvalType) {
-      case 'Квота для КП':
-        action = 'Согласовать квоту';
-        break;
-      case 'Договор':
-        action = 'Согласовать договор';
-        break;
-      case 'NDA':
-        action = 'Согласовать NDA';
-        break;
+      case 'NDA': {
+        const parts = ['NDA', company, priorityLabel].filter(Boolean);
+        return parts.join(' · ');
+      }
+      case 'Договор': {
+        const parts = ['Договор', company, priorityLabel].filter(Boolean);
+        return parts.join(' · ');
+      }
+      case 'Квота для КП': {
+        const quotationType = (formData as any).quotationType || '';
+        const parts = ['Квота для КП', company, quotationType].filter(Boolean);
+        return parts.join(' · ');
+      }
       case 'Запрос на расход': {
         const name = (formData as any).expenseName || '';
-        return name ? `Запрос на расход · ${name}` : 'Запрос на расход';
+        const parts = ['Запрос на расход', name].filter(Boolean);
+        return parts.join(' · ');
       }
       case 'ДС': {
-        return `ДС · ${formData.companyName}`;
+        const parts = ['ДС', company].filter(Boolean);
+        return parts.join(' · ');
       }
       case 'Запрос на закупку сервисов в Dbrain': {
         const svc = (formData as any).serviceName || '';
-        return svc ? `Запрос на закупку сервисов Dbrain · ${svc}` : 'Запрос на закупку сервисов Dbrain';
+        const parts = ['Закупка сервисов Dbrain', svc].filter(Boolean);
+        return parts.join(' · ');
       }
-      default:
-        action = 'Согласовать';
+      default: {
+        // Fallback: keep a simple, readable title if a new type appears
+        return ['Согласование', company].filter(Boolean).join(' · ');
+      }
     }
-
-    const pr = toReadablePriority();
-    return pr ? `${action}. Приоритет — ${pr}` : action;
   }
 
   private getTaskDescription(formData: FormData): string {
