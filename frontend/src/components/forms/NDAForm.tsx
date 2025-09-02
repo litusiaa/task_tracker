@@ -56,10 +56,9 @@ export const NDAForm: React.FC<NDAFormProps> = ({
           <Textarea
             value={companyDetails}
             onChange={onCompanyDetailsChange}
-            placeholder="Введите реквизиты компании"
+            placeholder="Введите реквизиты компании: ИНН, юр. адрес или ссылка на реквизиты"
             error={!!errors.companyDetails}
           />
-          <p className="mt-1 text-sm text-gray-500">ИНН, юр. адрес или ссылка на реквизиты</p>
           <div className="text-sm text-gray-600">или</div>
           <FileUpload
             onFileSelect={onCompanyFileChange}
