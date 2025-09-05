@@ -343,9 +343,12 @@ class LinearService {
       alexH: (process.env.LINEAR_USER_ALEXH_ID || '').trim(),
       zhenya: (process.env.LINEAR_USER_ZHENYA_ID || '').trim(),
       kostya: (process.env.LINEAR_USER_KOSTYA_ID || '').trim(),
-      esenya: (process.env.LINEAR_USER_ESENYA_ID || '').trim(),
+      // Есения: поддерживаем оба варианта переменной на всякий случай
+      esenya: (process.env.LINEAR_USER_ESENYA_ID || process.env.LINEAR_USER_ESENIYA_ID || '').trim(),
       kira: (process.env.LINEAR_USER_KIRA_ID || '').trim(),
       katya: (process.env.LINEAR_USER_KATYA_ID || '').trim(),
+      kirill: (process.env.LINEAR_USER_KIRILL_ID || '').trim(),
+      violetta: (process.env.LINEAR_USER_VIOLETTA_ID || '').trim(),
     };
   }
 
@@ -446,12 +449,23 @@ class LinearService {
     );
     const isSimpleDS = formData.approvalType === 'ДС';
     const isSimpleType = isSimpleExpense || isSimpleDS;
-    // Основной исполнитель: Расход/Закупка → Катя; ДС → Инна; иные → Инна/цепочка
-    const initialAssignee = isSimpleDS
-      ? (users.inna || this.assigneeId)
-      : isSimpleExpense
-        ? (users.katya || this.assigneeId)
-        : (users.inna || chain[0] || this.assigneeId);
+    // Основной исполнитель: Расход/Закупка → Катя; ДС → Инна; Квота для КП → выбранный в форме; иные → Инна/цепочка
+    let initialAssignee: string | undefined;
+    if (isSimpleDS) {
+      initialAssignee = users.inna || this.assigneeId;
+    } else if (isSimpleExpense) {
+      initialAssignee = users.katya || this.assigneeId;
+    } else if (formData.approvalType === 'Квота для КП') {
+      // Маппинг по полю «Кто запрашивает?»
+      const requester = formData.requester;
+      if (requester === 'Костя Поляков') initialAssignee = users.kostya || this.assigneeId;
+      else if (requester === 'Кирилл Стасюкевич') initialAssignee = users.kirill || this.assigneeId;
+      else if (requester === 'Есения Ли') initialAssignee = users.esenya || this.assigneeId;
+      else if (requester === 'Сотрудник Dbrain') initialAssignee = users.violetta || this.assigneeId;
+      else initialAssignee = users.inna || chain[0] || this.assigneeId;
+    } else {
+      initialAssignee = users.inna || chain[0] || this.assigneeId;
+    }
 
     // Матрица подписчиков (соисполнители): Женя по сайзингу, Егор по скидке
     const subscribers: string[] = [];
