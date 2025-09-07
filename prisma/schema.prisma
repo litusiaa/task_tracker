@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PdUser {
+  id        BigInt   @id @db.BigInt
+  name      String
+  email     String?
+  raw       Json
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  deals PdDeal[]
+
+  @@map("pd_users")
+}
+
+model PdPipeline {
+  id        BigInt   @id @db.BigInt
+  name      String
+  raw       Json
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  stages PdStage[]
+  deals  PdDeal[]
+  stageEvents PdStageEvent[]
+
+  @@map("pd_pipelines")
+}
+
+model PdStage {
+  id         BigInt   @id @db.BigInt
+  pipelineId BigInt   @map("pipeline_id") @db.BigInt
+  name       String
+  orderNo    Int      @map("order_no")
+  raw        Json
+  updatedAt  DateTime @default(now()) @map("updated_at")
+
+  pipeline    PdPipeline    @relation(fields: [pipelineId], references: [id])
+  deals       PdDeal[]
+  stageEvents PdStageEvent[]
+
+  @@map("pd_stages")
+}
+
+model PdDeal {
+  id                 BigInt    @id @db.BigInt
+  title              String
+  orgId              BigInt    @map("org_id") @db.BigInt
+  orgName            String    @map("org_name")
+  ownerId            BigInt    @map("owner_id") @db.BigInt
+  ownerName          String    @map("owner_name")
+  pipelineId         BigInt    @map("pipeline_id") @db.BigInt
+  stageId            BigInt    @map("stage_id") @db.BigInt
+  status             String
+  addTime            DateTime  @map("add_time")
+  updateTime         DateTime  @map("update_time")
+  wonTime            DateTime? @map("won_time")
+  expectedCloseDate  DateTime? @map("expected_close_date")
+  raw                Json
+  updatedAt          DateTime  @default(now()) @map("updated_at")
+
+  owner    PdUser       @relation(fields: [ownerId], references: [id])
+  pipeline PdPipeline   @relation(fields: [pipelineId], references: [id])
+  stage    PdStage      @relation(fields: [stageId], references: [id])
+  stageEvents PdStageEvent[]
+
+  @@map("pd_deals")
+}
+
+model PdStageEvent {
+  id                        BigInt    @id @default(autoincrement()) @db.BigInt
+  dealId                    BigInt    @map("deal_id") @db.BigInt
+  pipelineId                BigInt    @map("pipeline_id") @db.BigInt
+  stageId                   BigInt    @map("stage_id") @db.BigInt
+  enteredAt                 DateTime  @map("entered_at")
+  source                    String
+  snapshotExpectedCloseDate DateTime? @map("snapshot_expected_close_date")
+  meta                      Json?
+
+  deal      PdDeal     @relation(fields: [dealId], references: [id])
+  pipeline  PdPipeline @relation(fields: [pipelineId], references: [id])
+  stage     PdStage    @relation(fields: [stageId], references: [id])
+
+  @@unique([dealId, stageId, enteredAt])
+  @@map("pd_stage_events")
+}
+
+model PmMetricsCache {
+  id                      BigInt   @id @default(autoincrement()) @db.BigInt
+  ownerId                 BigInt   @map("owner_id") @db.BigInt
+  fromDate                DateTime @map("from_date")
+  toDate                  DateTime @map("to_date")
+  signedCount             Int      @map("signed_count")
+  launchedCount           Int      @map("launched_count")
+  launchPct               Decimal  @map("launch_pct") @db.Decimal(5, 2)
+  missedDeadlineCount     Int      @map("missed_deadline_count")
+  missedDeadlinePct       Decimal  @map("missed_deadline_pct") @db.Decimal(5, 2)
+  avgDaysIntegrationToPilot Decimal @map("avg_days_integration_to_pilot") @db.Decimal(6, 2)
+  computedAt              DateTime @default(now()) @map("computed_at")
+
+  @@unique([ownerId, fromDate, toDate], name: "ownerId_fromDate_toDate")
+  @@map("pm_metrics_cache")
+}
+
+model DashboardLayout {
+  id            BigInt   @id @default(autoincrement()) @db.BigInt
+  dashboardSlug String   @map("dashboard_slug")
+  layout        Json
+  updatedAt     DateTime @default(now()) @map("updated_at")
+
+  @@map("dashboard_layouts")
+}
+
+model SyncLog {
+  id         BigInt   @id @default(autoincrement()) @db.BigInt
+  source     String
+  startedAt  DateTime @map("started_at")
+  finishedAt DateTime @map("finished_at")
+  status     String
+  info       Json?
+
+  @@map("sync_logs")
+}
+
+// Seed configuration
+// Run with: npm run db:seed
