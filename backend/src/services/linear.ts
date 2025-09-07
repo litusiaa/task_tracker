@@ -489,14 +489,24 @@ class LinearService {
     if (users.zhenya) namesById[users.zhenya] = 'Евгения Попова';
     if (users.egor) namesById[users.egor] = 'Егор';
     if (users.katya) namesById[users.katya] = 'Катя';
+    if (users.kostya) namesById[users.kostya] = 'Костя Поляков';
+    if (users.kirill) namesById[users.kirill] = 'Кирилл Стасюкевич';
+    if (users.esenya) namesById[users.esenya] = 'Есения Ли';
+    if (users.violetta) namesById[users.violetta] = 'Виолетта';
     const participantIds: string[] = [];
     if (typeof initialAssignee === 'string' && initialAssignee) participantIds.push(initialAssignee);
     if (shouldZhenya && users.zhenya) participantIds.push(users.zhenya);
     if (shouldEgor && users.egor) participantIds.push(users.egor);
     const participants = Array.from(new Set(participantIds));
     if (participants.length > 0) {
-      const line = 'Участники: ' + participants.map(id => `@${namesById[id] || 'user'}`).join(', ');
-      description = `${line}\n\n${description}`;
+      const rendered = participants
+        .map(id => namesById[id])
+        .filter((name): name is string => Boolean(name))
+        .map(name => `@${name}`);
+      if (rendered.length > 0) {
+        const line = 'Участники: ' + rendered.join(', ');
+        description = `${line}\n\n${description}`;
+      }
     }
 
     // Build input conditionally to avoid sending empty strings to Linear (causes UUID errors)
