@@ -339,6 +339,7 @@ class LinearService {
   private getUserIds() {
     return {
       inna: (process.env.LINEAR_USER_INNA_ID || '').trim(),
+      lera: (process.env.LINEAR_USER_LERA_ID || '').trim(),
       egor: (process.env.LINEAR_USER_EGOR_ID || '').trim(),
       alexH: (process.env.LINEAR_USER_ALEXH_ID || '').trim(),
       zhenya: (process.env.LINEAR_USER_ZHENYA_ID || '').trim(),
@@ -356,9 +357,9 @@ class LinearService {
     const users = this.getUserIds();
     const chain: string[] = [];
 
-    // Новые типы: ДС → Инна; Расход/Закупка сервисов → Катя
+    // Новые типы: ДС → Лера; Расход/Закупка сервисов → Катя
     if (formData.approvalType === 'ДС') {
-      if (users.inna) chain.push(users.inna);
+      if (users.lera) chain.push(users.lera);
       return chain;
     }
     if (
@@ -370,17 +371,17 @@ class LinearService {
     }
 
     if (formData.approvalType === 'NDA') {
-      if (users.inna) chain.push(users.inna);
+      if (users.lera) chain.push(users.lera);
       return chain;
     }
 
     if (formData.approvalType === 'Договор') {
-      // Главная задача: без сайзинга — Инна; с сайзингом — Женя → Инна (как последовательные шаги)
+      // Главная задача: без сайзинга — Лера; с сайзингом — Женя → Лера (как последовательные шаги)
       if (formData.sizing === 'Да') {
         if (users.zhenya) chain.push(users.zhenya);
-        if (users.inna) chain.push(users.inna);
+        if (users.lera) chain.push(users.lera);
       } else {
-        if (users.inna) chain.push(users.inna);
+        if (users.lera) chain.push(users.lera);
       }
       return chain;
     }
@@ -391,12 +392,12 @@ class LinearService {
       const pushIf = (id?: string) => { if (id) chain.push(id); };
 
       if (sizing === 'Да') {
-        // Сайзинг сначала Женя → затем финал Инна; согласующие пойдут параллельными подзадачами (см. ниже)
+        // Сайзинг сначала Женя → затем финал Лера; согласующие пойдут параллельными подзадачами (см. ниже)
         pushIf(users.zhenya);
-        pushIf(users.inna);
+        pushIf(users.lera);
       } else {
-        // Без сайзинга: основная на Инну, согласующие параллельно как подзадачи
-        pushIf(users.inna);
+        // Без сайзинга: основная на Леру, согласующие параллельно как подзадачи
+        pushIf(users.lera);
       }
       return chain.filter(Boolean);
     }
@@ -449,10 +450,10 @@ class LinearService {
     );
     const isSimpleDS = formData.approvalType === 'ДС';
     const isSimpleType = isSimpleExpense || isSimpleDS;
-    // Основной исполнитель: Расход/Закупка → Катя; ДС → Инна; Квота для КП → выбранный в форме; иные → Инна/цепочка
+    // Основной исполнитель: Расход/Закупка → Катя; ДС → Лера; Квота для КП → выбранный в форме; иные → Лера/цепочка
     let initialAssignee: string | undefined;
     if (isSimpleDS) {
-      initialAssignee = users.inna || this.assigneeId;
+      initialAssignee = users.lera || this.assigneeId;
     } else if (isSimpleExpense) {
       initialAssignee = users.katya || this.assigneeId;
     } else if (formData.approvalType === 'Квота для КП') {
@@ -462,9 +463,9 @@ class LinearService {
       else if (requester === 'Кирилл Стасюкевич') initialAssignee = users.kirill || this.assigneeId;
       else if (requester === 'Есения Ли') initialAssignee = users.esenya || this.assigneeId;
       else if (requester === 'Сотрудник Dbrain') initialAssignee = users.violetta || this.assigneeId;
-      else initialAssignee = users.inna || chain[0] || this.assigneeId;
+      else initialAssignee = users.lera || chain[0] || this.assigneeId;
     } else {
-      initialAssignee = users.inna || chain[0] || this.assigneeId;
+      initialAssignee = users.lera || chain[0] || this.assigneeId;
     }
 
     // Матрица подписчиков (соисполнители): Женя по сайзингу, Егор по скидке
@@ -485,7 +486,7 @@ class LinearService {
     const shouldZhenya = !isSimpleType && sizingVal === 'Да' && users.zhenya && isUuid(users.zhenya);
     const shouldEgor = !isSimpleType && ['0–25%', '25–50%', 'Больше 50%'].includes(discountVal || '') && users.egor && isUuid(users.egor);
     const namesById: Record<string, string> = {};
-    if (users.inna) namesById[users.inna] = 'Инна';
+    if (users.lera) namesById[users.lera] = 'Лера';
     if (users.zhenya) namesById[users.zhenya] = 'Евгения Попова';
     if (users.egor) namesById[users.egor] = 'Егор';
     if (users.katya) namesById[users.katya] = 'Катя';
