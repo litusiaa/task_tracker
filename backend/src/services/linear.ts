@@ -431,6 +431,46 @@ class LinearService {
     }
   }
 
+  private async safeCreateIssue(input: any): Promise<{ id: string; url: string; title: string; description?: string }> {
+    try {
+      return await this.createIssue(input);
+    } catch (e: any) {
+      const msg = (e?.message || '').toString();
+      // Retry strategy: progressively remove optional fields that can cause validation errors
+      const clone = { ...input };
+      const tried = new Set<string>();
+
+      const removeAndTry = async (key: string) => {
+        if (key in clone) {
+          tried.add(key);
+          delete (clone as any)[key];
+          return await this.createIssue(clone);
+        }
+        throw e;
+      };
+
+      if (msg.includes('subscriberIds')) {
+        try { return await removeAndTry('subscriberIds'); } catch {}
+      }
+      if (msg.includes('stateId')) {
+        try { return await removeAndTry('stateId'); } catch {}
+      }
+      if (msg.includes('projectId')) {
+        try { return await removeAndTry('projectId'); } catch {}
+      }
+      if (msg.includes('assigneeId')) {
+        try { return await removeAndTry('assigneeId'); } catch {}
+      }
+
+      // If message not specific, try broad fallbacks in order
+      for (const k of ['subscriberIds', 'stateId', 'projectId', 'assigneeId']) {
+        if (tried.has(k)) continue;
+        try { return await removeAndTry(k); } catch {}
+      }
+      throw e;
+    }
+  }
+
   async createTask(formData: FormData): Promise<TodoistTask> { // reuse common shape
     await this.ensureAssignee();
     await this.ensureTeam();
@@ -526,19 +566,7 @@ class LinearService {
     if (uniqSubs.length > 0) parentInput.subscriberIds = uniqSubs;
 
     if (dueDate) parentInput.dueDate = dueDate;
-    let parent;
-    try {
-      parent = await this.createIssue(parentInput);
-    } catch (e: any) {
-      const msg = (e?.message || '').toString();
-      if (msg.includes('subscriberIds')) {
-        // Повторяем без подписчиков, если хотя бы один ID неподтверждён в Linear
-        delete parentInput.subscriberIds;
-        parent = await this.createIssue(parentInput);
-      } else {
-        throw e;
-      }
-    }
+    const parent = await this.safeCreateIssue(parentInput);
 
     // Создаём подзадачи по правилам (сайзинг/скидка) — только для сложных типов (не для Расход/Закупка/ДС)
     const children: Array<{ title: string; assigneeId: string }> = [];
@@ -568,26 +596,9 @@ class LinearService {
 
       const childIsEgor = child.assigneeId === users.egor;
       try {
-        await this.createIssue(childInput);
-      } catch (e1: any) {
-        // Fallback 1: пробуем без assignee, но с подписчиком (если это задача для Егора)
-        const childInputNoAssignee: any = { ...childInput };
-        delete childInputNoAssignee.assigneeId;
-        if (childIsEgor && users.egor && isUuid(users.egor)) {
-          childInputNoAssignee.subscriberIds = [users.egor];
-        }
-        try {
-          await this.createIssue(childInputNoAssignee);
-        } catch (e2: any) {
-          // Fallback 2: создаём без подписчиков вообще
-          const childInputPlain: any = { ...childInputNoAssignee };
-          delete childInputPlain.subscriberIds;
-          try {
-            await this.createIssue(childInputPlain);
-          } catch (e3) {
-            // не блокируем родителя из‑за ошибки саб‑задачи
-          }
-        }
+        await this.safeCreateIssue(childInput);
+      } catch (e3) {
+        // не блокируем родителя из‑за ошибки саб‑задачи
       }
     }
 
