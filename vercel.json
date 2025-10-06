@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm ci || npm install && npm --prefix frontend ci || npm --prefix frontend install",
+  "installCommand": "npm install --no-audit --no-fund; npm --prefix frontend install --no-audit --no-fund; npm --prefix backend install --no-audit --no-fund",
   "buildCommand": "npm --prefix frontend run build",
   "outputDirectory": "frontend/dist",
   "crons": [
