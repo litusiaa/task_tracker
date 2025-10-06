@@ -14,9 +14,12 @@ export const submitForm = async (formData: FormData): Promise<ApiResponse> => {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      const data: any = error.response?.data;
+      const raw = data?.error ?? data?.message ?? error.message;
+      const msg = typeof raw === 'string' ? raw : (raw?.message || JSON.stringify(raw));
       return {
         success: false,
-        error: error.response?.data?.error || 'Произошла ошибка при отправке формы',
+        error: msg || 'Произошла ошибка при отправке формы',
       };
     }
     return {
