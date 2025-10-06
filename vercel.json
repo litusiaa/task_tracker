@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/sync/pipedrive?mode=inc",
-      "schedule": "*/30 * * * *"
+      "schedule": "0 0 * * *"
     }
   ],
   "functions": {
