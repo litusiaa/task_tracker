@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const baseFormSchema = z.object({
   companyName: z.string().min(1, 'Название компании обязательно для заполнения'),
-  requester: z.enum(['Костя Поляков', 'Кирилл Стасюкевич', 'Есения Ли', 'Сотрудник Dbrain'], {
+  requester: z.enum(['Костя Поляков', 'Кирилл Стасюкевич', 'Евгения Попова', 'Максим Короткевич', 'Сотрудник Dbrain'], {
     required_error: 'Выберите, кто запрашивает квоту',
   }),
   approvalType: z.enum(['Квота для КП', 'Договор', 'NDA'], {

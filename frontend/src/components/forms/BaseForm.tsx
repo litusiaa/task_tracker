@@ -20,7 +20,8 @@ interface BaseFormProps {
 const requesters: { value: Requester; label: string }[] = [
   { value: 'Костя Поляков', label: 'Костя Поляков' },
   { value: 'Кирилл Стасюкевич', label: 'Кирилл Стасюкевич' },
-  { value: 'Есения Ли', label: 'Есения Ли' },
+  { value: 'Евгения Попова', label: 'Евгения Попова' },
+  { value: 'Максим Короткевич', label: 'Максим Короткевич' },
   { value: 'Сотрудник Dbrain', label: 'Сотрудник Dbrain' },
 ];
 

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const baseCore = z.object({
-  requester: z.enum(['Костя Поляков', 'Кирилл Стасюкевич', 'Есения Ли', 'Сотрудник Dbrain'], {
+  requester: z.enum(['Костя Поляков', 'Кирилл Стасюкевич', 'Евгения Попова', 'Максим Короткевич', 'Сотрудник Dbrain'], {
     required_error: 'Выберите, кто запрашивает квоту',
   }),
   approvalType: z.enum([

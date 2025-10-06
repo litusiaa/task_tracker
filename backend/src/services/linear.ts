@@ -344,12 +344,12 @@ class LinearService {
       alexH: (process.env.LINEAR_USER_ALEXH_ID || '').trim(),
       zhenya: (process.env.LINEAR_USER_ZHENYA_ID || '').trim(),
       kostya: (process.env.LINEAR_USER_KOSTYA_ID || '').trim(),
-      // Есения: поддерживаем оба варианта переменной на всякий случай
-      esenya: (process.env.LINEAR_USER_ESENYA_ID || process.env.LINEAR_USER_ESENIYA_ID || '').trim(),
+      // Удалили Есению — переменная больше не используется
       kira: (process.env.LINEAR_USER_KIRA_ID || '').trim(),
       katya: (process.env.LINEAR_USER_KATYA_ID || '').trim(),
       kirill: (process.env.LINEAR_USER_KIRILL_ID || '').trim(),
       violetta: (process.env.LINEAR_USER_VIOLETTA_ID || '').trim(),
+      maksim: (process.env.LINEAR_USER_MAKSIM_ID || '').trim(),
     };
   }
 
@@ -461,7 +461,8 @@ class LinearService {
       const requester = formData.requester;
       if (requester === 'Костя Поляков') initialAssignee = users.kostya || this.assigneeId;
       else if (requester === 'Кирилл Стасюкевич') initialAssignee = users.kirill || this.assigneeId;
-      else if (requester === 'Есения Ли') initialAssignee = users.esenya || this.assigneeId;
+      else if (requester === 'Евгения Попова') initialAssignee = users.zhenya || this.assigneeId;
+      else if (requester === 'Максим Короткевич') initialAssignee = users.maksim || this.assigneeId;
       else if (requester === 'Сотрудник Dbrain') initialAssignee = users.violetta || this.assigneeId;
       else initialAssignee = users.lera || chain[0] || this.assigneeId;
     } else {
@@ -492,7 +493,8 @@ class LinearService {
     if (users.katya) namesById[users.katya] = 'Катя';
     if (users.kostya) namesById[users.kostya] = 'Костя Поляков';
     if (users.kirill) namesById[users.kirill] = 'Кирилл Стасюкевич';
-    if (users.esenya) namesById[users.esenya] = 'Есения Ли';
+    if (users.zhenya) namesById[users.zhenya] = 'Евгения Попова';
+    if (users.maksim) namesById[users.maksim] = 'Максим Короткевич';
     if (users.violetta) namesById[users.violetta] = 'Виолетта';
     const participantIds: string[] = [];
     if (typeof initialAssignee === 'string' && initialAssignee) participantIds.push(initialAssignee);
