@@ -548,7 +548,7 @@ class LinearService {
     if (users.maksim) namesById[users.maksim] = 'Максим Короткевич';
     if (users.violetta) namesById[users.violetta] = 'Виолетта';
     const participantIds: string[] = [];
-    if (typeof initialAssignee === 'string' && initialAssignee) participantIds.push(initialAssignee);
+    if (typeof initialAssignee === 'string' && initialAssignee && isUuid(initialAssignee)) participantIds.push(initialAssignee);
     if (shouldZhenya && users.zhenya) participantIds.push(users.zhenya);
     if (shouldEgor && users.egor) participantIds.push(users.egor);
     const participants = Array.from(new Set(participantIds));
@@ -569,8 +569,8 @@ class LinearService {
       title,
       description,
       priority,
-      assigneeId: initialAssignee,
     };
+    if (initialAssignee && isUuid(initialAssignee)) parentInput.assigneeId = initialAssignee;
     if (this.projectId) parentInput.projectId = this.projectId;
     const targetState = this.getTargetStateId();
     if (targetState) parentInput.stateId = targetState;
@@ -599,9 +599,9 @@ class LinearService {
       const childInput: any = {
         teamId: this.teamId!,
         title: child.title,
-        assigneeId: child.assigneeId,
         parentId: parent.id,
       };
+      if (child.assigneeId && isUuid(child.assigneeId)) childInput.assigneeId = child.assigneeId;
       if (this.projectId) childInput.projectId = this.projectId;
       if (targetState) childInput.stateId = targetState;
 
