@@ -595,6 +595,11 @@ class LinearService {
   }
 }
 
-export const linearService = new LinearService();
+let _linearService: LinearService | null = null;
+export function getLinearService(): LinearService {
+  if (_linearService) return _linearService;
+  _linearService = new LinearService();
+  return _linearService;
+}
 
 

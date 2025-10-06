@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { linearService } from '../services/linear';
+import { getLinearService } from '../services/linear';
 import { FormData, ApiResponse } from '../types';
 
 export const submitQuotaRequest = async (req: Request, res: Response) => {
@@ -7,7 +7,7 @@ export const submitQuotaRequest = async (req: Request, res: Response) => {
     const formData: FormData = req.body;
 
     // Всегда создаем задачу в Linear
-    const created = await linearService.createTask(formData);
+    const created = await getLinearService().createTask(formData);
 
     // Формируем ответ
     const response: ApiResponse = {
