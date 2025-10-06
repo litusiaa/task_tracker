@@ -1,10 +1,4 @@
 {
-  "crons": [
-    {
-      "path": "/api/sync/pipedrive?mode=inc",
-      "schedule": "*/30 * * * *"
-    }
-  ],
   "functions": {
     "src/app/api/sync/pipedrive/route.ts": {
       "maxDuration": 300
