@@ -1,7 +1,13 @@
 {
-  "installCommand": "npm --prefix frontend ci || npm --prefix frontend install",
+  "installCommand": "npm ci || npm install && npm --prefix frontend ci || npm --prefix frontend install",
   "buildCommand": "npm --prefix frontend run build",
   "outputDirectory": "frontend/dist",
+  "crons": [
+    {
+      "path": "/api/sync/pipedrive?mode=inc",
+      "schedule": "0 0 * * *"
+    }
+  ],
   "routes": [
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/frontend/dist/index.html" }
