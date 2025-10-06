@@ -337,19 +337,30 @@ class LinearService {
   }
 
   private getUserIds() {
+    const read = (primary: string, ...fallbacks: string[]) => {
+      const v = (process.env[primary] || '').trim();
+      if (v) return v;
+      for (const f of fallbacks) {
+        const fv = (process.env[f] || '').trim();
+        if (fv) return fv;
+      }
+      return '';
+    };
     return {
-      inna: (process.env.LINEAR_USER_INNA_ID || '').trim(),
-      lera: (process.env.LINEAR_USER_LERA_ID || '').trim(),
-      egor: (process.env.LINEAR_USER_EGOR_ID || '').trim(),
-      alexH: (process.env.LINEAR_USER_ALEXH_ID || '').trim(),
-      zhenya: (process.env.LINEAR_USER_ZHENYA_ID || '').trim(),
-      kostya: (process.env.LINEAR_USER_KOSTYA_ID || '').trim(),
-      // Удалили Есению — переменная больше не используется
-      kira: (process.env.LINEAR_USER_KIRA_ID || '').trim(),
-      katya: (process.env.LINEAR_USER_KATYA_ID || '').trim(),
-      kirill: (process.env.LINEAR_USER_KIRILL_ID || '').trim(),
-      violetta: (process.env.LINEAR_USER_VIOLETTA_ID || '').trim(),
-      maksim: (process.env.LINEAR_USER_MAKSIM_ID || '').trim(),
+      inna: read('LINEAR_USER_INNA_ID'),
+      lera: read('LINEAR_USER_LERA_ID'),
+      egor: read('LINEAR_USER_EGOR_ID'),
+      alexH: read('LINEAR_USER_ALEXH_ID'),
+      zhenya: read('LINEAR_USER_ZHENYA_ID'),
+      kostya: read('LINEAR_USER_KOSTYA_ID'),
+      // Есения больше не используется, но оставляем слот на будущее
+      kira: read('LINEAR_USER_KIRA_ID'),
+      katya: read('LINEAR_USER_KATYA_ID'),
+      // Поддерживаем альтернативное имя переменной для Кирилла
+      kirill: read('LINEAR_USER_KIRILL_ID', 'LINEAR_USER_KIRA_ID'),
+      // Поддерживаем альтернативное имя переменной для Виолетты (Vita)
+      violetta: read('LINEAR_USER_VIOLETTA_ID', 'LINEAR_USER_VITA_ID'),
+      maksim: read('LINEAR_USER_MAKSIM_ID'),
     };
   }
 
